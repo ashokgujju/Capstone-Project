@@ -2,20 +2,27 @@ package com.ashok.simplereader;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import com.ashok.simplereader.dummy.DummyContent;
+
+import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.auth.AuthenticationState;
+import net.dean.jraw.auth.NoSuchTokenException;
+import net.dean.jraw.http.oauth.Credentials;
+import net.dean.jraw.http.oauth.OAuthException;
 
 import java.util.List;
 
@@ -34,6 +41,7 @@ public class PostListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
+    private String TAG = PostListActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +56,9 @@ public class PostListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                startActivity(new Intent(PostListActivity.this, LoginActivity.class));
             }
         });
 
@@ -64,6 +73,9 @@ public class PostListActivity extends AppCompatActivity {
             // activity should be in two-pane mode.
             mTwoPane = true;
         }
+
+
+
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -137,5 +149,42 @@ public class PostListActivity extends AppCompatActivity {
                 return super.toString() + " '" + mContentView.getText() + "'";
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AuthenticationState state = AuthenticationManager.get().checkAuthState();
+        Log.d(TAG, "AuthenticationState for onResume(): " + state);
+
+        switch (state) {
+            case READY:
+                break;
+            case NONE:
+                Toast.makeText(PostListActivity.this, "Log in first", Toast.LENGTH_SHORT).show();
+                break;
+            case NEED_REFRESH:
+                refreshAccessTokenAsync();
+                break;
+        }
+    }
+
+    private void refreshAccessTokenAsync() {
+        new AsyncTask<Credentials, Void, Void>() {
+            @Override
+            protected Void doInBackground(Credentials... params) {
+                try {
+                    AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
+                } catch (NoSuchTokenException | OAuthException e) {
+                    Log.e(TAG, "Could not refresh access token", e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                Log.d(TAG, "Reauthenticated");
+            }
+        }.execute();
     }
 }
