@@ -1,9 +1,7 @@
 package com.ashok.simplereader;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,8 +41,16 @@ public class PostDetailFragment extends Fragment {
     TextView mBody;
     @BindView(R.id.photo)
     ImageView mPhoto;
-    @BindView(R.id.comments)
+    @BindView(R.id.commentsList)
     RecyclerView mCommentsRecyclerView;
+    @BindView(R.id.ups)
+    TextView mUpVotes;
+    @BindView(R.id.downs)
+    TextView mDownVotes;
+    @BindView(R.id.comments)
+    TextView mNumComments;
+    @BindView(R.id.share)
+    TextView mShare;
 
     public PostDetailFragment() {
     }
@@ -57,11 +63,6 @@ public class PostDetailFragment extends Fragment {
             String postJson = getArguments().getString(ARG_ITEM_ID);
             try {
                 post = new Submission(new ObjectMapper().readTree(postJson));
-                Activity activity = this.getActivity();
-                CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-                if (appBarLayout != null) {
-                    appBarLayout.setTitle(post.getTitle());
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -74,7 +75,7 @@ public class PostDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.post_detail, container, false);
         ButterKnife.bind(this, rootView);
 
-        mSubreddit.setText(post.getSubredditName());
+        mSubreddit.setText(post.data("subreddit_name_prefixed"));
         mTitle.setText(post.getTitle());
 
         adapter = new CommentsAdapter(getActivity());
@@ -82,6 +83,9 @@ public class PostDetailFragment extends Fragment {
         mCommentsRecyclerView.setLayoutManager(manager);
         mCommentsRecyclerView.setAdapter(adapter);
         mCommentsRecyclerView.setNestedScrollingEnabled(false);
+        mUpVotes.setText(post.data("ups"));
+        mDownVotes.setText(post.data("downs"));
+        mNumComments.setText(String.valueOf(post.getCommentCount()));
 
         switch (post.getPostHint()) {
             case SELF:
@@ -99,6 +103,14 @@ public class PostDetailFragment extends Fragment {
                 Picasso.with(getActivity()).load(post.getUrl()).into(mPhoto);
                 break;
             case VIDEO:
+                break;
+            case UNKNOWN:
+                try {
+                    mBody.setVisibility(View.VISIBLE);
+                    mBody.setText(Html.fromHtml(StringEscapeUtils.unescapeHtml4(post.data("selftext_html"))));
+                    mBody.setMovementMethod(LinkMovementMethod.getInstance());
+                } catch (Exception e) {
+                }
                 break;
         }
 

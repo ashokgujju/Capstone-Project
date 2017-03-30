@@ -18,6 +18,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,12 +31,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ashok.simplereader.PostListActivity" />
         </activity>
-        <activity android:name=".LoginActivity">
-        </activity>
+        <activity android:name=".LoginActivity"></activity>
 
         <meta-data
             android:name="net.dean.jraw.REDDIT_USERNAME"
             android:value="ashokgujju" />
+
+        <activity android:name=".SearchForSubreddits">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+        <meta-data
+            android:name="android.app.searchable"
+            android:resource="@xml/searchable" />
     </application>
 
 </manifest>

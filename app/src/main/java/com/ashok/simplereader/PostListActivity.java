@@ -1,5 +1,7 @@
 package com.ashok.simplereader;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,8 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,7 +34,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener{
+public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener {
 
     private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
@@ -134,5 +139,19 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         Intent i = new Intent(this, PostDetailActivity.class);
         i.putExtra(PostDetailActivity.POST_JSON, post.getDataNode().toString());
         startActivity(i);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        return true;
     }
 }

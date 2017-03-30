@@ -66,7 +66,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
             holder.mThumbnail.setVisibility(View.GONE);
         }
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

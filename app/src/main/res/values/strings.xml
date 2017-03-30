@@ -2,4 +2,6 @@
     <string name="app_name">SimpleReader</string>
     <string name="title_post_detail">Post Detail</string>
     <string name="share">Share</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search for subreddits</string>
 </resources>
