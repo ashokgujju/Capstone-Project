@@ -35,9 +35,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(CommentsAdapterViewHolder holder, int position) {
         CommentNode commentNode = commentNodes.get(position);
-        holder.mBody.setText(makeIndent(commentNode.getDepth())
-                + commentNode.getComment().getBody());
-        holder.mAuthor.setText(makeIndent(commentNode.getDepth()) + commentNode.getComment().getAuthor());
+        holder.mBody.setText(commentNode.getComment().getBody());
+        holder.mAuthor.setText(commentNode.getComment().getAuthor());
+        holder.itemView.setPadding(makeIndent(commentNode.getDepth()), 0, 0, 0);
     }
 
     public void setCommentNodes(FluentIterable<CommentNode> commentNodes) {
@@ -64,12 +64,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
     }
 
-
-    private String makeIndent(int depth) {
-        String res = "";
-        for (int i = 0; i < depth; i++) {
-            res = res.concat("  ");
-        }
-        return res;
+    private int makeIndent(int depth) {
+        float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (10 * depth * scale + 0.5f);
     }
 }
