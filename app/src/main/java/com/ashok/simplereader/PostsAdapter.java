@@ -25,6 +25,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
 
     private Context context;
     private List<Submission> posts;
+    private OnPostClickListener clickListener;
+
+    interface OnPostClickListener {
+        void onPostClicked(Submission post);
+    }
+
+    public void setOnPostClickListener(OnPostClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
 
     public PostsAdapter(Context context) {
         this.context = context;
@@ -43,7 +52,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
 
     @Override
     public void onBindViewHolder(PostsAdapterViewHolder holder, int position) {
-        Submission submission = posts.get(position);
+        final Submission submission = posts.get(position);
         holder.mSubredditName.setText(submission.data("subreddit_name_prefixed"));
         holder.mTitle.setText(submission.getTitle());
         holder.mNumComments.setText(String.valueOf(submission.getCommentCount()));
@@ -56,6 +65,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
         } else {
             holder.mThumbnail.setVisibility(View.GONE);
         }
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickListener.onPostClicked(submission);
+            }
+        });
     }
 
     @Override

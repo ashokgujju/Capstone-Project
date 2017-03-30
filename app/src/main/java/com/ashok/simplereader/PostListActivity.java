@@ -29,7 +29,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PostListActivity extends AppCompatActivity {
+public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener{
 
     private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
@@ -66,6 +66,7 @@ public class PostListActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerview.setLayoutManager(layoutManager);
         mRecyclerview.setAdapter(adapter);
+        adapter.setOnPostClickListener(this);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerview.getContext(),
                 layoutManager.getOrientation());
         mRecyclerview.addItemDecoration(dividerItemDecoration);
@@ -126,5 +127,12 @@ public class PostListActivity extends AppCompatActivity {
                 loadPosts();
             }
         }.execute();
+    }
+
+    @Override
+    public void onPostClicked(Submission post) {
+        Intent i = new Intent(this, PostDetailActivity.class);
+        i.putExtra(PostDetailActivity.POST_JSON, post.getDataNode().toString());
+        startActivity(i);
     }
 }
