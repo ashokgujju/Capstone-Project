@@ -31,7 +31,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ashok.simplereader.PostListActivity" />
         </activity>
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity" />
 
         <meta-data
             android:name="net.dean.jraw.REDDIT_USERNAME"
@@ -41,6 +41,7 @@
             android:name=".SearchForSubredditsActivity"
             android:label=""
             android:launchMode="singleTop" />
+        <activity android:name=".ManageSubredditsActivity"></activity>
     </application>
 
 </manifest>

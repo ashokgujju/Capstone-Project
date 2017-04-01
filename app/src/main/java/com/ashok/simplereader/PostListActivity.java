@@ -1,16 +1,16 @@
 package com.ashok.simplereader;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -44,7 +44,13 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     SubredditPaginator paginator;
 
     @BindView(R.id.post_list)
-    RecyclerView mRecyclerview;
+    RecyclerView mPostsRV;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.navigation)
+    NavigationView mNavigation;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +62,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             mTwoPane = true;
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+        setSupportActionBar(mToolbar);
+        mToolbar.setTitle(getTitle());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -70,14 +75,28 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
         adapter = new PostsAdapter(this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        mRecyclerview.setLayoutManager(layoutManager);
-        mRecyclerview.setAdapter(adapter);
+        mPostsRV.setLayoutManager(layoutManager);
+        mPostsRV.setAdapter(adapter);
         adapter.setOnPostClickListener(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerview.getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mPostsRV.getContext(),
                 layoutManager.getOrientation());
-        mRecyclerview.addItemDecoration(dividerItemDecoration);
+        mPostsRV.addItemDecoration(dividerItemDecoration);
+
         RedditClient redditClient = AuthenticationManager.get().getRedditClient();
         paginator = new SubredditPaginator(redditClient);
+
+        mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_manage_srs:
+                        startActivity(new Intent(PostListActivity.this, ManageSubredditsActivity.class));
+                        break;
+                }
+                mDrawer.closeDrawers();
+                return true;
+            }
+        });
     }
 
     @Override
