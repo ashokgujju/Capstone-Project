@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +52,8 @@ public class PostDetailFragment extends Fragment {
     TextView mNumComments;
     @BindView(R.id.share)
     TextView mShare;
+    @BindView(R.id.progressbar)
+    ProgressBar mProgressbar;
 
     public PostDetailFragment() {
     }
@@ -117,6 +120,11 @@ public class PostDetailFragment extends Fragment {
         final RedditClient client = AuthenticationManager.get().getRedditClient();
         new AsyncTask<Void, Void, CommentNode>() {
             @Override
+            protected void onPreExecute() {
+                mProgressbar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
             protected CommentNode doInBackground(Void... voids) {
                 Submission submission = client.getSubmission(post.getId());
                 return submission.getComments();
@@ -124,6 +132,7 @@ public class PostDetailFragment extends Fragment {
 
             @Override
             protected void onPostExecute(CommentNode root) {
+                mProgressbar.setVisibility(View.GONE);
                 adapter.setCommentNodes(root.walkTree());
             }
         }.execute();

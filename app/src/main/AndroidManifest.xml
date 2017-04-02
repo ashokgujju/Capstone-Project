@@ -41,7 +41,8 @@
             android:name=".SearchForSubredditsActivity"
             android:label=""
             android:launchMode="singleTop" />
-        <activity android:name=".ManageSubredditsActivity"></activity>
+        <activity android:name=".ManageSubredditsActivity"
+            android:label="@string/manage_subreddits"></activity>
     </application>
 
 </manifest>

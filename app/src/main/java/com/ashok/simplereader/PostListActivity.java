@@ -3,10 +3,6 @@ package com.ashok.simplereader;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import net.dean.jraw.RedditClient;
@@ -27,6 +24,7 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubredditPaginator;
 
 import java.util.ArrayList;
@@ -47,10 +45,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     RecyclerView mPostsRV;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.navigation)
-    NavigationView mNavigation;
-    @BindView(R.id.drawer_layout)
-    DrawerLayout mDrawer;
+    @BindView(R.id.progressbar)
+    ProgressBar mProgressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,38 +61,16 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         setSupportActionBar(mToolbar);
         mToolbar.setTitle(getTitle());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(PostListActivity.this, LoginActivity.class));
-            }
-        });
-
         adapter = new PostsAdapter(this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        mPostsRV.setLayoutManager(layoutManager);
+        mPostsRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mPostsRV.setAdapter(adapter);
         adapter.setOnPostClickListener(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mPostsRV.getContext(),
-                layoutManager.getOrientation());
-        mPostsRV.addItemDecoration(dividerItemDecoration);
+        mPostsRV.addItemDecoration(new DividerItemDecoration(this,
+                LinearLayoutManager.VERTICAL));
 
         RedditClient redditClient = AuthenticationManager.get().getRedditClient();
         paginator = new SubredditPaginator(redditClient);
-
-        mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_manage_srs:
-                        startActivity(new Intent(PostListActivity.this, ManageSubredditsActivity.class));
-                        break;
-                }
-                mDrawer.closeDrawers();
-                return true;
-            }
-        });
+//        paginator.setSorting(Sorting.NEW);
     }
 
     @Override
@@ -106,7 +80,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         Log.d(TAG, "AuthenticationState for onResume(): " + state);
         switch (state) {
             case READY:
-                loadPosts();
+//                loadPosts();
                 break;
             case NONE:
                 Toast.makeText(PostListActivity.this, "Log in first", Toast.LENGTH_SHORT).show();
@@ -120,12 +94,19 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     private void loadPosts() {
         new AsyncTask<Void, Void, Listing<Submission>>() {
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mProgressbar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
             protected Listing<Submission> doInBackground(Void... voids) {
                 return paginator.next();
             }
 
             @Override
             protected void onPostExecute(Listing<Submission> listings) {
+                mProgressbar.setVisibility(View.GONE);
                 if (listings != null) {
                     posts.addAll(listings);
                     adapter.setPosts(posts);
@@ -170,10 +151,18 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.search) {
-            startActivity(new Intent(this, SearchForSubredditsActivity.class));
-            return true;
+        switch (item.getItemId()) {
+            case R.id.search:
+                startActivity(new Intent(this, SearchForSubredditsActivity.class));
+                break;
+            case R.id.manage_srs:
+                startActivity(new Intent(this, ManageSubredditsActivity.class));
+                break;
+            case R.id.account:
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 }

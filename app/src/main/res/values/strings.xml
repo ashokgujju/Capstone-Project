@@ -4,4 +4,7 @@
     <string name="share">Share</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search for subreddits</string>
+    <string name="sort">Sort</string>
+    <string name="manage_subreddits">Manage Subreddits</string>
+    <string name="login">Login</string>
 </resources>

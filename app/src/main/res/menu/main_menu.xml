@@ -3,7 +3,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/search"
-        android:icon="@drawable/ic_search_black_24dp"
+        android:icon="@drawable/ic_search_24dp"
         android:title="@string/search_title"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/sort_order"
+        android:icon="@drawable/ic_sort_24dp"
+        android:title="@string/sort"
+        app:showAsAction="always">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/hot"
+                    android:title="Hot" />
+                <item
+                    android:id="@+id/latest"
+                    android:title="New" />
+                <item
+                    android:id="@+id/top"
+                    android:title="Top" />
+                <item
+                    android:id="@+id/controversial"
+                    android:title="Controversial" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/manage_srs"
+        android:title="@string/manage_subreddits"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/account"
+        android:title="@string/login"
+        app:showAsAction="never" />
 </menu>
