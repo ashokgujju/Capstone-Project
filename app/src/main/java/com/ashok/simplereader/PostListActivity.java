@@ -22,6 +22,7 @@ import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.auth.NoSuchTokenException;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthException;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.Sorting;
@@ -70,7 +71,6 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
         RedditClient redditClient = AuthenticationManager.get().getRedditClient();
         paginator = new SubredditPaginator(redditClient);
-//        paginator.setSorting(Sorting.NEW);
     }
 
     @Override

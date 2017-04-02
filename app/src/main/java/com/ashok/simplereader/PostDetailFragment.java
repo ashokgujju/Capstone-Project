@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.RedditClient;
@@ -23,6 +25,9 @@ import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Submission;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -103,7 +108,7 @@ public class PostDetailFragment extends Fragment {
                 break;
             case IMAGE:
                 mPhoto.setVisibility(View.VISIBLE);
-                Picasso.with(getActivity()).load(post.getUrl()).into(mPhoto);
+                Picasso.with(getActivity()).load(post.getThumbnail()).into(mPhoto);
                 break;
             case VIDEO:
                 break;

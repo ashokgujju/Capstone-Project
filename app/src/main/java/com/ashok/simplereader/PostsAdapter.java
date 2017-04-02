@@ -1,6 +1,7 @@
 package com.ashok.simplereader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import net.dean.jraw.ApiException;
+import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.VoteDirection;
 
 import java.util.List;
 
@@ -66,12 +71,49 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
             holder.mThumbnail.setVisibility(View.GONE);
         }
 
+        holder.mUpVotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vote(submission, VoteDirection.UPVOTE);
+            }
+        });
+        holder.mDownVotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vote(submission, VoteDirection.DOWNVOTE);
+            }
+        });
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 clickListener.onPostClicked(submission);
             }
         });
+
+        holder.mShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, submission.getPermalink());
+                context.startActivity(shareIntent);
+            }
+        });
+    }
+
+    private void vote(final Submission submission, final VoteDirection voteDirection) {
+        final AccountManager manager = new AccountManager(AuthenticationManager.get().getRedditClient());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    manager.vote(submission, voteDirection);
+                } catch (ApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
