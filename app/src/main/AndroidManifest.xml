@@ -41,8 +41,14 @@
             android:name=".SearchForSubredditsActivity"
             android:label=""
             android:launchMode="singleTop" />
-        <activity android:name=".ManageSubredditsActivity"
+        <activity
+            android:name=".ManageSubredditsActivity"
             android:label="@string/manage_subreddits"></activity>
+
+        <provider
+            android:name="com.ashok.simplereader.data.generated.PostProvider"
+            android:authorities="com.ashok.simplereader.data.PostProvider"
+            android:exported="false" />
     </application>
 
 </manifest>
