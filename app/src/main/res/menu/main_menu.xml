@@ -15,16 +15,16 @@
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/hot"
-                    android:title="Hot" />
+                    android:title="@string/sort_hot" />
                 <item
                     android:id="@+id/latest"
-                    android:title="New" />
+                    android:title="@string/sort_new" />
                 <item
                     android:id="@+id/top"
-                    android:title="Top" />
+                    android:title="@string/sort_top" />
                 <item
                     android:id="@+id/controversial"
-                    android:title="Controversial" />
+                    android:title="@string/sort_controversial" />
             </group>
         </menu>
     </item>

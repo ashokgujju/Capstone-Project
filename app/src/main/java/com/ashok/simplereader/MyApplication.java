@@ -2,6 +2,8 @@ package com.ashok.simplereader;
 
 import android.app.Application;
 
+import com.facebook.stetho.Stetho;
+
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.android.AndroidRedditClient;
 import net.dean.jraw.android.AndroidTokenStore;
@@ -27,6 +29,7 @@ public class MyApplication extends Application {
         if (BuildConfig.DEBUG) {
             Timber.uprootAll();
             Timber.plant(new Timber.DebugTree());
+            Stetho.initializeWithDefaults(this);
         }
     }
 }

@@ -7,4 +7,9 @@
     <string name="sort">Sort</string>
     <string name="manage_subreddits">Manage Subreddits</string>
     <string name="login">Login</string>
+    <string name="sort_hot">Hot</string>
+    <string name="sort_new">New</string>
+    <string name="sort_top">Top</string>
+    <string name="sort_controversial">Controversial</string>
+    <string name="key_sort_type">sortType</string>
 </resources>

@@ -1,8 +1,14 @@
 package com.ashok.simplereader;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,9 +18,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.ashok.simplereader.sync.PostSyncJob;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
@@ -22,9 +29,8 @@ import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.auth.NoSuchTokenException;
 import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthException;
-import net.dean.jraw.managers.AccountManager;
-import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubredditPaginator;
 
@@ -34,20 +40,23 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener {
+public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener,
+        LoaderManager.LoaderCallbacks {
 
-    private boolean mTwoPane;
-    private String TAG = PostListActivity.class.getSimpleName();
-    private List<Submission> posts = new ArrayList<>();
-    private PostsAdapter adapter;
-    SubredditPaginator paginator;
-
+    public static final int POSTS_LOADER_ID = 11;
     @BindView(R.id.post_list)
     RecyclerView mPostsRV;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+    private boolean mTwoPane;
+    private String TAG = PostListActivity.class.getSimpleName();
+    private List<Submission> posts = new ArrayList<>();
+    private PostsAdapter adapter;
+    private SubredditPaginator paginator;
+    private SharedPreferences preferences;
+    private Sorting sortType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,18 +68,24 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             mTwoPane = true;
         }
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         setSupportActionBar(mToolbar);
         mToolbar.setTitle(getTitle());
 
         adapter = new PostsAdapter(this);
-        mPostsRV.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mPostsRV.setLayoutManager(layoutManager);
         mPostsRV.setAdapter(adapter);
         adapter.setOnPostClickListener(this);
         mPostsRV.addItemDecoration(new DividerItemDecoration(this,
                 LinearLayoutManager.VERTICAL));
-
-        RedditClient redditClient = AuthenticationManager.get().getRedditClient();
-        paginator = new SubredditPaginator(redditClient);
+        mPostsRV.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, PostListActivity.this).forceLoad();
+            }
+        });
     }
 
     @Override
@@ -80,7 +95,9 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         Log.d(TAG, "AuthenticationState for onResume(): " + state);
         switch (state) {
             case READY:
-//                loadPosts();
+                if (posts.size() == 0) {
+                    loadPosts();
+                }
                 break;
             case NONE:
                 Toast.makeText(PostListActivity.this, "Log in first", Toast.LENGTH_SHORT).show();
@@ -92,27 +109,11 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     }
 
     private void loadPosts() {
-        new AsyncTask<Void, Void, Listing<Submission>>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                mProgressbar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Listing<Submission> doInBackground(Void... voids) {
-                return paginator.next();
-            }
-
-            @Override
-            protected void onPostExecute(Listing<Submission> listings) {
-                mProgressbar.setVisibility(View.GONE);
-                if (listings != null) {
-                    posts.addAll(listings);
-                    adapter.setPosts(posts);
-                }
-            }
-        }.execute();
+        PostSyncJob.initialize(this);
+        RedditClient redditClient = AuthenticationManager.get().getRedditClient();
+        paginator = new SubredditPaginator(redditClient);
+        paginator.setSorting(getSortType());
+        getSupportLoaderManager().initLoader(POSTS_LOADER_ID, null, this).forceLoad();
     }
 
     private void refreshAccessTokenAsync() {
@@ -150,6 +151,24 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        String sortType = preferences.getString(getString(R.string.key_sort_type), getString(R.string.sort_hot));
+        if (sortType.equals(getString(R.string.sort_hot))) {
+            menu.findItem(R.id.hot).setChecked(true);
+        } else if (sortType.equals(getString(R.string.sort_new))) {
+            menu.findItem(R.id.latest).setChecked(true);
+        } else if (sortType.equals(getString(R.string.sort_top))) {
+            menu.findItem(R.id.top).setChecked(true);
+        } else if (sortType.equals(getString(R.string.sort_controversial))) {
+            menu.findItem(R.id.controversial).setChecked(true);
+        } else {
+            return super.onPrepareOptionsMenu(menu);
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search:
@@ -160,9 +179,88 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 break;
             case R.id.account:
                 break;
+            case R.id.latest:
+                item.setChecked(true);
+                saveSortPreference(getString(R.string.sort_new));
+                sortPosts(Sorting.NEW);
+                break;
+            case R.id.top:
+                item.setChecked(true);
+                saveSortPreference(getString(R.string.sort_top));
+                sortPosts(Sorting.TOP);
+                break;
+            case R.id.hot:
+                item.setChecked(true);
+                saveSortPreference(getString(R.string.sort_hot));
+                sortPosts(Sorting.HOT);
+                break;
+            case R.id.controversial:
+                item.setChecked(true);
+                saveSortPreference(getString(R.string.sort_controversial));
+                sortPosts(Sorting.CONTROVERSIAL);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    private void saveSortPreference(String sortType) {
+        preferences.edit().putString(getString(R.string.key_sort_type), sortType).apply();
+    }
+
+    private void sortPosts(Sorting sorting) {
+        this.posts.clear();
+        adapter.setPosts(null);
+        paginator = new SubredditPaginator(AuthenticationManager.get().getRedditClient());
+        paginator.setSorting(sorting);
+        getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, this).forceLoad();
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new PostsAsyncTaskLoader(this, paginator);
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if (data != null) {
+            List<Submission> posts = (List<Submission>) data;
+            this.posts.addAll(posts);
+            adapter.setPosts(this.posts);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+    }
+
+    public Sorting getSortType() {
+        String type = preferences.getString(getString(R.string.key_sort_type), getString(R.string.sort_hot));
+        if (type.equals(getString(R.string.sort_hot))) {
+            return Sorting.HOT;
+        } else if (type.equals(getString(R.string.sort_new))) {
+            return Sorting.NEW;
+        } else if (type.equals(getString(R.string.sort_top))) {
+            return Sorting.TOP;
+        } else if (type.equals(getString(R.string.sort_controversial))) {
+            return Sorting.CONTROVERSIAL;
+        }
+        return null;
+    }
+
+    private static class PostsAsyncTaskLoader extends AsyncTaskLoader {
+        private Paginator paginator;
+
+        public PostsAsyncTaskLoader(Context context, Paginator paginator) {
+            super(context);
+            this.paginator = paginator;
+        }
+
+        @Override
+        public Object loadInBackground() {
+            return paginator.next();
+        }
     }
 }
