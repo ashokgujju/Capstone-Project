@@ -21,6 +21,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 
 /**
  * Created by ashok on 29/3/17.
@@ -104,6 +106,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
 
     private void vote(final Submission submission, final VoteDirection voteDirection) {
         final AccountManager manager = new AccountManager(AuthenticationManager.get().getRedditClient());
+
         new Thread(new Runnable() {
             @Override
             public void run() {

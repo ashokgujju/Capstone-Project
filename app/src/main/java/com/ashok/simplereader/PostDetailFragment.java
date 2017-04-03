@@ -1,13 +1,14 @@
 package com.ashok.simplereader;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.RedditClient;
@@ -25,9 +25,6 @@ import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Submission;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -86,6 +83,7 @@ public class PostDetailFragment extends Fragment {
         mSubreddit.setText(post.data("subreddit_name_prefixed"));
         mTitle.setText(post.getTitle());
 
+        // TODO optimize loading comments
         adapter = new CommentsAdapter(getActivity());
         LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mCommentsRecyclerView.setLayoutManager(manager);
@@ -105,12 +103,26 @@ public class PostDetailFragment extends Fragment {
                 }
                 break;
             case LINK:
+            case VIDEO:
+                //TODO show preview
+                try {
+                    mBody.setVisibility(View.VISIBLE);
+                    mBody.setText(post.getUrl());
+                    mBody.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+                            customTabsIntent.launchUrl(getActivity(), Uri.parse(post.getUrl()));
+                        }
+                    });
+                } catch (Exception e) {
+                }
                 break;
             case IMAGE:
                 mPhoto.setVisibility(View.VISIBLE);
+
+                //TODO load good quality image
                 Picasso.with(getActivity()).load(post.getThumbnail()).into(mPhoto);
-                break;
-            case VIDEO:
                 break;
             case UNKNOWN:
                 try {
