@@ -8,7 +8,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="com.ashok.simplereader.PostListActivity">
+    tools:context="com.ashok.simplereader.ui.PostListActivity">
 
     <!--
     This layout is a two-pane layout for the Posts

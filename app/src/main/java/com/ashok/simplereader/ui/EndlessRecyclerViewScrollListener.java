@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;

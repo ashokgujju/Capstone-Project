@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.ashok.simplereader.R;
 import com.ashok.simplereader.sync.PostSyncJob;
 
 import net.dean.jraw.RedditClient;
@@ -56,7 +57,6 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     private PostsAdapter adapter;
     private SubredditPaginator paginator;
     private SharedPreferences preferences;
-    private Sorting sortType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         mToolbar.setTitle(getTitle());
 
         adapter = new PostsAdapter(this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false);
         mPostsRV.setLayoutManager(layoutManager);
         mPostsRV.setAdapter(adapter);
         adapter.setOnPostClickListener(this);
@@ -83,7 +84,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         mPostsRV.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, PostListActivity.this).forceLoad();
+                getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null,
+                        PostListActivity.this).forceLoad();
             }
         });
     }
@@ -152,7 +154,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        String sortType = preferences.getString(getString(R.string.key_sort_type), getString(R.string.sort_hot));
+        String sortType = preferences.getString(getString(R.string.key_sort_type),
+                getString(R.string.sort_hot));
         if (sortType.equals(getString(R.string.sort_hot))) {
             menu.findItem(R.id.hot).setChecked(true);
         } else if (sortType.equals(getString(R.string.sort_new))) {
@@ -237,7 +240,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     }
 
     public Sorting getSortType() {
-        String type = preferences.getString(getString(R.string.key_sort_type), getString(R.string.sort_hot));
+        String type = preferences.getString(getString(R.string.key_sort_type),
+                getString(R.string.sort_hot));
         if (type.equals(getString(R.string.sort_hot))) {
             return Sorting.HOT;
         } else if (type.equals(getString(R.string.sort_new))) {

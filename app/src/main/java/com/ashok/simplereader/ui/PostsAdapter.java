@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ashok.simplereader.R;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.ApiException;

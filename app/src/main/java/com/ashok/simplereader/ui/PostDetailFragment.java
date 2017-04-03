@@ -1,10 +1,14 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
+import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -16,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ashok.simplereader.R;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.picasso.Picasso;
 
@@ -31,8 +36,9 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PostDetailFragment extends Fragment {
+public class PostDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks {
     public static final String ARG_ITEM_ID = "item_id";
+    public static final int COMMENTS_LOADER_ID = 12;
     private Submission post = null;
     private CommentsAdapter adapter;
 
@@ -133,27 +139,46 @@ public class PostDetailFragment extends Fragment {
                 }
                 break;
         }
-
-        final RedditClient client = AuthenticationManager.get().getRedditClient();
-        new AsyncTask<Void, Void, CommentNode>() {
-            @Override
-            protected void onPreExecute() {
-                mProgressbar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected CommentNode doInBackground(Void... voids) {
-                Submission submission = client.getSubmission(post.getId());
-                return submission.getComments();
-            }
-
-            @Override
-            protected void onPostExecute(CommentNode root) {
-                mProgressbar.setVisibility(View.GONE);
-                adapter.setCommentNodes(root.walkTree());
-            }
-        }.execute();
-
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().getSupportLoaderManager().initLoader(COMMENTS_LOADER_ID, null, this).forceLoad();
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new CommentsAsyncTaskLoader(getActivity(), post.getId());
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if (data != null) {
+            CommentNode root = (CommentNode) data;
+            adapter.setCommentNodes(root.walkTree());
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+    }
+
+    private static class CommentsAsyncTaskLoader extends AsyncTaskLoader {
+        private String postId;
+
+        public CommentsAsyncTaskLoader(Context context, String postId) {
+            super(context);
+            this.postId = postId;
+        }
+
+        @Override
+        public Object loadInBackground() {
+            RedditClient client = AuthenticationManager.get().getRedditClient();
+            Submission post = client.getSubmission(postId);
+            return post.getComments();
+        }
     }
 }

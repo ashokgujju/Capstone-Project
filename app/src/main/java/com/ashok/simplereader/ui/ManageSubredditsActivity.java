@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+
+import com.ashok.simplereader.R;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.models.Listing;

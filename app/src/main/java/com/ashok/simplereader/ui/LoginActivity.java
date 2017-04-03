@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.ui;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -8,6 +8,8 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.ashok.simplereader.R;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.http.NetworkException;
