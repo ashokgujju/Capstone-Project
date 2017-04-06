@@ -2,8 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
-    android:padding="@dimen/default_padding">
+    android:paddingEnd="@dimen/default_padding"
+    android:paddingStart="@dimen/default_padding"
+    android:paddingTop="@dimen/default_padding">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,16 +29,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/default_padding"
+                android:textColor="@color/secondary_text"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/title"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingEnd="@dimen/default_padding"
                 android:paddingStart="@dimen/default_padding"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/primary_text" />
         </LinearLayout>
     </RelativeLayout>
 

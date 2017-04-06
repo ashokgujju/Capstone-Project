@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="@dimen/default_padding"
     tools:showIn="@layout/item_post_list">
 
     <TextView
@@ -12,9 +11,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_arrow_upward"
-        android:padding="@dimen/default_padding"
+        android:padding="10dp"
+        android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
     <TextView
@@ -22,9 +24,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_arrow_downward"
-        android:padding="@dimen/default_padding"
+        android:padding="10dp"
+        android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
     <TextView
@@ -33,8 +37,9 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:drawablePadding="@dimen/default_padding"
-        android:drawableStart="@drawable/ic_mode_comment"
-        android:padding="@dimen/default_padding"
+        android:drawableStart="@drawable/ic_comment"
+        android:padding="10dp"
+        android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
     <TextView
@@ -42,9 +47,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:background="?attr/selectableItemBackground"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_share"
-        android:padding="@dimen/default_padding"
+        android:padding="10dp"
         android:text="@string/share"
+        android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 </LinearLayout>
