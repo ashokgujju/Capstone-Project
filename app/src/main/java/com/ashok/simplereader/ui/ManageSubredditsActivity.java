@@ -1,26 +1,38 @@
 package com.ashok.simplereader.ui;
 
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.ashok.simplereader.MySubreddit;
+import com.ashok.simplereader.utils.PrefUtils;
 import com.ashok.simplereader.R;
 
+import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.UserSubredditsPaginator;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ManageSubredditsActivity extends AppCompatActivity {
+public class ManageSubredditsActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks {
     @BindView(R.id.results)
-    ListView mSubreddits;
+    RecyclerView mSubreddits;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
 
@@ -35,29 +47,12 @@ public class ManageSubredditsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         adapter = new SubredditAdapter(this);
+        mSubreddits.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mSubreddits.setHasFixedSize(true);
         mSubreddits.setAdapter(adapter);
 
-        final UserSubredditsPaginator paginator = new UserSubredditsPaginator(
-                AuthenticationManager.get().getRedditClient(), "subscriber");
+        getSupportLoaderManager().initLoader(1, null, this).forceLoad();
 
-        new AsyncTask<Void, Void, Listing<Subreddit>>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                mProgressbar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            protected Listing<Subreddit> doInBackground(Void... voids) {
-                return paginator.next();
-            }
-
-            @Override
-            protected void onPostExecute(Listing<Subreddit> subreddits) {
-                mProgressbar.setVisibility(View.GONE);
-                adapter.setData(subreddits);
-            }
-        }.execute();
     }
 
     @Override
@@ -68,5 +63,58 @@ public class ManageSubredditsActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new UserSubredditAsyncTaskLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if (data != null) {
+            List<MySubreddit> mysubreddits = (List<MySubreddit>) data;
+            adapter.setData(mysubreddits);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+    }
+
+    private static class UserSubredditAsyncTaskLoader extends AsyncTaskLoader {
+        private Context context;
+
+        public UserSubredditAsyncTaskLoader(Context context) {
+            super(context);
+            this.context = context;
+        }
+
+        @Override
+        public Object loadInBackground() {
+            RedditClient client = AuthenticationManager.get().getRedditClient();
+            UserSubredditsPaginator paginator = new UserSubredditsPaginator(client, "subscriber");
+            Listing<Subreddit> listings = paginator.next();
+
+            Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
+
+            List<MySubreddit> mySubreddits = new ArrayList<>();
+            Set<String> latestIds = new HashSet<>();
+
+            for (Subreddit subreddit : listings) {
+                MySubreddit mySubreddit = new MySubreddit();
+                mySubreddit.setSubreddit(subreddit);
+                if (favSubredditIds.contains(subreddit.getId())) {
+                    mySubreddit.setFavorite(true);
+                    latestIds.add(subreddit.getId());
+                } else {
+                    mySubreddit.setFavorite(false);
+                }
+                mySubreddits.add(mySubreddit);
+            }
+            PrefUtils.updateFavorites(context, latestIds);
+            return mySubreddits;
+        }
     }
 }

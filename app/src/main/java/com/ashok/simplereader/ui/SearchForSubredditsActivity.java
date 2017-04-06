@@ -1,16 +1,21 @@
 package com.ashok.simplereader.ui;
 
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.ashok.simplereader.MySubreddit;
+import com.ashok.simplereader.utils.PrefUtils;
 import com.ashok.simplereader.R;
 
 import net.dean.jraw.RedditClient;
@@ -19,13 +24,19 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditSearchPaginator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SearchForSubredditsActivity extends AppCompatActivity {
+public class SearchForSubredditsActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks {
 
+    public static final String KEY_QUERY = "query";
     @BindView(R.id.results)
-    ListView mSubreddits;
+    RecyclerView mSubreddits;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
     private SubredditAdapter adapter;
@@ -37,6 +48,8 @@ public class SearchForSubredditsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         adapter = new SubredditAdapter(this);
+        mSubreddits.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mSubreddits.setHasFixedSize(true);
         mSubreddits.setAdapter(adapter);
     }
 
@@ -61,26 +74,9 @@ public class SearchForSubredditsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                RedditClient client = AuthenticationManager.get().getRedditClient();
-                final SubredditSearchPaginator paginator = new SubredditSearchPaginator(client, query);
-                new AsyncTask<Void, Void, Listing<Subreddit>>() {
-                    @Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-                        mProgressbar.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    protected Listing<Subreddit> doInBackground(Void... voids) {
-                        return paginator.next();
-                    }
-
-                    @Override
-                    protected void onPostExecute(Listing<Subreddit> subreddits) {
-                        mProgressbar.setVisibility(View.GONE);
-                        adapter.setData(subreddits);
-                    }
-                }.execute();
+                Bundle bundle = new Bundle();
+                bundle.putString(KEY_QUERY, query);
+                getSupportLoaderManager().restartLoader(1, bundle, SearchForSubredditsActivity.this).forceLoad();
 
                 return true;
             }
@@ -91,5 +87,56 @@ public class SearchForSubredditsActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        return new SearchSubredditAsyncTaskLoader(this, args.getString(KEY_QUERY));
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if (data != null) {
+            List<MySubreddit> mysubreddits = (List<MySubreddit>) data;
+            adapter.setData(mysubreddits);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+    }
+
+    private static class SearchSubredditAsyncTaskLoader extends AsyncTaskLoader {
+        private String query;
+        private Context context;
+
+        public SearchSubredditAsyncTaskLoader(Context context, String query) {
+            super(context);
+            this.context = context;
+            this.query = query;
+        }
+
+        @Override
+        public Object loadInBackground() {
+            RedditClient client = AuthenticationManager.get().getRedditClient();
+            SubredditSearchPaginator paginator = new SubredditSearchPaginator(client, query);
+            Listing<Subreddit> listings = paginator.next();
+
+            Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
+            List<MySubreddit> mySubreddits = new ArrayList<>();
+
+            for (Subreddit subreddit : listings) {
+                MySubreddit mySubreddit = new MySubreddit();
+                mySubreddit.setSubreddit(subreddit);
+                if (favSubredditIds.contains(subreddit.getId())) {
+                    mySubreddit.setFavorite(true);
+                } else {
+                    mySubreddit.setFavorite(false);
+                }
+                mySubreddits.add(mySubreddit);
+            }
+            return mySubreddits;
+        }
     }
 }

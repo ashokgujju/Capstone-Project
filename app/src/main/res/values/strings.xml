@@ -12,4 +12,5 @@
     <string name="sort_top">Top</string>
     <string name="sort_controversial">Controversial</string>
     <string name="key_sort_type">sortType</string>
+    <string name="favroite_srs_key">favorite_srs_key</string>
 </resources>

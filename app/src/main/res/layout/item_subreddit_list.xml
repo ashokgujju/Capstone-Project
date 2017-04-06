@@ -7,16 +7,25 @@
     <ImageView
         android:id="@+id/favorite"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
-        android:paddingStart="@dimen/default_padding"
+        android:layout_centerVertical="true"
+        android:clickable="true"
         android:src="@drawable/ic_not_favorite" />
 
     <CheckBox
         android:id="@+id/subreddit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
         android:layout_toStartOf="@id/favorite"
-        android:gravity="center" />
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/no_subscribers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/subreddit"
+        android:layout_marginTop="@dimen/default_padding"
+        android:gravity="center_horizontal" />
 </RelativeLayout>

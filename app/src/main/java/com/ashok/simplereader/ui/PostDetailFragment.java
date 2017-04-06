@@ -1,6 +1,7 @@
 package com.ashok.simplereader.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -95,6 +96,7 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         mCommentsRecyclerView.setLayoutManager(manager);
         mCommentsRecyclerView.setAdapter(adapter);
         mCommentsRecyclerView.setNestedScrollingEnabled(false);
+
         mUpVotes.setText(post.data("ups"));
         mDownVotes.setText(post.data("downs"));
         mNumComments.setText(String.valueOf(post.getCommentCount()));
@@ -114,6 +116,7 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                 try {
                     mBody.setVisibility(View.VISIBLE);
                     mBody.setText(post.getUrl());
+                    mBody.setTextColor(Color.BLUE);
                     mBody.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -128,6 +131,7 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                 mPhoto.setVisibility(View.VISIBLE);
 
                 //TODO load good quality image
+//                Log.d("shit", post.getDataNode())
                 Picasso.with(getActivity()).load(post.getThumbnail()).into(mPhoto);
                 break;
             case UNKNOWN:

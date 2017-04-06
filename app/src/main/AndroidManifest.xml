@@ -42,9 +42,10 @@
             android:name=".ui.SearchForSubredditsActivity"
             android:label=""
             android:launchMode="singleTop" />
+
         <activity
             android:name=".ui.ManageSubredditsActivity"
-            android:label="@string/manage_subreddits"></activity>
+            android:label="@string/manage_subreddits" />
 
         <service
             android:name=".sync.PostIntentService"

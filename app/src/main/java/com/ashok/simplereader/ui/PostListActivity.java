@@ -181,6 +181,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 startActivity(new Intent(this, ManageSubredditsActivity.class));
                 break;
             case R.id.account:
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
             case R.id.latest:
                 item.setChecked(true);
