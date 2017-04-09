@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -45,12 +46,14 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         LoaderManager.LoaderCallbacks {
 
     public static final int POSTS_LOADER_ID = 11;
+
     @BindView(R.id.post_list)
     RecyclerView mPostsRV;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+
     private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
     private List<Submission> posts = new ArrayList<>();
@@ -216,6 +219,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     private void sortPosts(Sorting sorting) {
         this.posts.clear();
         adapter.setPosts(null);
+        mProgressbar.setVisibility(View.VISIBLE);
         paginator = new SubredditPaginator(AuthenticationManager.get().getRedditClient());
         paginator.setSorting(sorting);
         getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, this).forceLoad();
@@ -228,6 +232,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
+        mProgressbar.setVisibility(View.GONE);
         if (data != null) {
             List<Submission> posts = (List<Submission>) data;
             this.posts.addAll(posts);

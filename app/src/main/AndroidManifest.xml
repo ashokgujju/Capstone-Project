@@ -42,7 +42,6 @@
             android:name=".ui.SearchForSubredditsActivity"
             android:label=""
             android:launchMode="singleTop" />
-
         <activity
             android:name=".ui.ManageSubredditsActivity"
             android:label="@string/manage_subreddits" />
@@ -52,7 +51,7 @@
             android:exported="false" />
 
         <provider
-            android:name="com.ashok.simplereader.data.generated.PostProvider"
+            android:name=".data.generated.PostProvider"
             android:authorities="com.ashok.simplereader.data.PostProvider"
             android:exported="false" />
     </application>

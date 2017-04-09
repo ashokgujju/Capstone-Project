@@ -12,8 +12,8 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 
 import com.ashok.simplereader.MySubreddit;
-import com.ashok.simplereader.utils.PrefUtils;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;

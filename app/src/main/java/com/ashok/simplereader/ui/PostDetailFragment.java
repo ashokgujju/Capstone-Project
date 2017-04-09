@@ -27,7 +27,9 @@ import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.CommentNode;
+import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Submission;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -40,8 +42,6 @@ import butterknife.ButterKnife;
 public class PostDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks {
     public static final String ARG_ITEM_ID = "item_id";
     public static final int COMMENTS_LOADER_ID = 12;
-    private Submission post = null;
-    private CommentsAdapter adapter;
 
     @BindView(R.id.subreddit)
     TextView mSubreddit;
@@ -63,6 +63,9 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
     TextView mShare;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+
+    private Submission post = null;
+    private CommentsAdapter adapter;
 
     public PostDetailFragment() {
     }
@@ -90,12 +93,11 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         mSubreddit.setText(post.data("subreddit_name_prefixed"));
         mTitle.setText(post.getTitle());
 
-        // TODO optimize loading comments
         adapter = new CommentsAdapter(getActivity());
-        LinearLayoutManager manager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
         mCommentsRecyclerView.setLayoutManager(manager);
         mCommentsRecyclerView.setAdapter(adapter);
-        mCommentsRecyclerView.setNestedScrollingEnabled(false);
 
         mUpVotes.setText(post.data("ups"));
         mDownVotes.setText(post.data("downs"));
@@ -112,7 +114,6 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                 break;
             case LINK:
             case VIDEO:
-                //TODO show preview
                 try {
                     mBody.setVisibility(View.VISIBLE);
                     mBody.setText(post.getUrl());
@@ -131,7 +132,6 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                 mPhoto.setVisibility(View.VISIBLE);
 
                 //TODO load good quality image
-//                Log.d("shit", post.getDataNode())
                 Picasso.with(getActivity()).load(post.getThumbnail()).into(mPhoto);
                 break;
             case UNKNOWN:
@@ -159,15 +159,18 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
+        mProgressbar.setVisibility(View.GONE);
         if (data != null) {
-            CommentNode root = (CommentNode) data;
-            adapter.setCommentNodes(root.walkTree());
+            if (data instanceof CommentNode) {
+                CommentNode root = (CommentNode) data;
+                adapter.setCommentNodes(root.walkTree());
+                mCommentsRecyclerView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
-
     }
 
     private static class CommentsAsyncTaskLoader extends AsyncTaskLoader {
@@ -176,6 +179,11 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         public CommentsAsyncTaskLoader(Context context, String postId) {
             super(context);
             this.postId = postId;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            super.onStartLoading();
         }
 
         @Override

@@ -16,16 +16,16 @@ public class PostProvider {
     public static final String AUTHORITY = "com.ashok.simplereader.data.PostProvider";
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    interface Path {
-        String POSTS = "posts";
-    }
-
     private static Uri buildUri(String... paths) {
         Uri.Builder builder = BASE_CONTENT_URI.buildUpon();
         for (String path : paths) {
             builder.appendPath(path);
         }
         return builder.build();
+    }
+
+    interface Path {
+        String POSTS = "posts";
     }
 
     @TableEndpoint(table = PostDatabase.POSTS)

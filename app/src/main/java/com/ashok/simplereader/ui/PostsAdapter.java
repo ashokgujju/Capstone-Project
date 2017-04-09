@@ -33,16 +33,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
     private List<Submission> posts;
     private OnPostClickListener clickListener;
 
-    interface OnPostClickListener {
-        void onPostClicked(Submission post);
+    public PostsAdapter(Context context) {
+        this.context = context;
     }
 
     public void setOnPostClickListener(OnPostClickListener clickListener) {
         this.clickListener = clickListener;
-    }
-
-    public PostsAdapter(Context context) {
-        this.context = context;
     }
 
     public void setPosts(List<Submission> posts) {
@@ -123,6 +119,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
         if (posts == null)
             return 0;
         return posts.size();
+    }
+
+    interface OnPostClickListener {
+        void onPostClicked(Submission post);
     }
 
     public class PostsAdapterViewHolder extends RecyclerView.ViewHolder {

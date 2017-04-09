@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ashok.simplereader.MySubreddit;
-import com.ashok.simplereader.utils.PrefUtils;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.managers.AccountManager;
