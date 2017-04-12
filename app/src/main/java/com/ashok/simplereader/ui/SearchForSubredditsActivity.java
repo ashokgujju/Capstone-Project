@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
-import com.ashok.simplereader.MySubreddit;
+import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.PrefUtils;
 

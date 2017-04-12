@@ -9,6 +9,7 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,17 +23,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.RedditApiKeys;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
-import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.CommentNode;
-import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Submission;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -90,7 +93,8 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         View rootView = inflater.inflate(R.layout.post_detail, container, false);
         ButterKnife.bind(this, rootView);
 
-        mSubreddit.setText(post.data("subreddit_name_prefixed"));
+        mSubreddit.setText(post.data(RedditApiKeys.SUBREDDIT_NAME_PREFIXED).concat("   u/")
+                .concat(post.getAuthor()));
         mTitle.setText(post.getTitle());
 
         adapter = new CommentsAdapter(getActivity());
@@ -99,8 +103,23 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         mCommentsRecyclerView.setLayoutManager(manager);
         mCommentsRecyclerView.setAdapter(adapter);
 
-        mUpVotes.setText(post.data("ups"));
-        mDownVotes.setText(post.data("downs"));
+        if (post.data(RedditApiKeys.LIKES) != null) {
+            if (Boolean.parseBoolean(post.data(RedditApiKeys.LIKES))) {
+                mUpVotes.setTextColor(Color.RED);
+            } else {
+                mUpVotes.setTextColor(Color.parseColor("#" + Integer
+                        .toHexString(ContextCompat.getColor(getActivity(), R.color.secondary_text))));
+            }
+        }
+        mUpVotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        mUpVotes.setText(post.data(RedditApiKeys.UPS));
+        mDownVotes.setText(post.data(RedditApiKeys.DOWNS));
         mNumComments.setText(String.valueOf(post.getCommentCount()));
 
         switch (post.getPostHint()) {
@@ -131,13 +150,28 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
             case IMAGE:
                 mPhoto.setVisibility(View.VISIBLE);
 
-                //TODO load good quality image
-                Picasso.with(getActivity()).load(post.getThumbnail()).into(mPhoto);
+                String imageRosolutions = post.getDataNode().get("preview").get("images").get(0)
+                        .get("resolutions").toString();
+                try {
+                    JSONArray resolutionsArr = new JSONArray(imageRosolutions);
+                    for (int i = 0; i < resolutionsArr.length(); i++) {
+                        JSONObject imageObject = resolutionsArr.getJSONObject(i);
+                        if (imageObject.getInt("width") == 216) {
+                            String imgUrl = Html.fromHtml(StringEscapeUtils
+                                    .unescapeHtml4(imageObject.getString("url"))).toString();
+                            Picasso.with(getActivity()).load(imgUrl).into(mPhoto);
+                            break;
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                }
                 break;
             case UNKNOWN:
                 try {
                     mBody.setVisibility(View.VISIBLE);
-                    mBody.setText(Html.fromHtml(StringEscapeUtils.unescapeHtml4(post.data("selftext_html"))));
+                    mBody.setText(Html.fromHtml(StringEscapeUtils.unescapeHtml4(post.data(RedditApiKeys.SELFTEXT_HTML))));
                     mBody.setMovementMethod(LinkMovementMethod.getInstance());
                 } catch (Exception e) {
                 }

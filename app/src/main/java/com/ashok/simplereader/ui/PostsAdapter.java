@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.RedditApiKeys;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.ApiException;
@@ -58,7 +59,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
         holder.mSubredditName.setText(submission.data("subreddit_name_prefixed"));
         holder.mTitle.setText(submission.getTitle());
         holder.mNumComments.setText(String.valueOf(submission.getCommentCount()));
-        holder.mUpVotes.setText(submission.data("ups"));
+        holder.mUpVotes.setText(submission.data(RedditApiKeys.UPS));
         holder.mDownVotes.setText(submission.data("downs"));
 
         if (submission.getThumbnailType().equals(Submission.ThumbnailType.URL)) {

@@ -1,4 +1,4 @@
-package com.ashok.simplereader;
+package com.ashok.simplereader.model;
 
 import net.dean.jraw.models.Subreddit;
 

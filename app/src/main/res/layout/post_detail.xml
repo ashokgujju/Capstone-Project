@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/default_padding"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/secondary_text" />
 
             <TextView
                 android:id="@+id/title"
@@ -31,13 +31,14 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/default_padding"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/primary_text" />
 
             <TextView
                 android:id="@+id/body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/default_padding"
+                android:textColor="@color/secondary_text"
                 android:visibility="gone" />
 
             <ImageView
@@ -53,7 +54,6 @@
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
-        android:id="@+id/commentsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -72,6 +72,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="20dp" />
+            android:layout_margin="@dimen/progressbar_margin" />
     </FrameLayout>
 </android.support.design.widget.CoordinatorLayout>

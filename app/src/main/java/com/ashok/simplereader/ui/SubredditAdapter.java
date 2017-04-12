@@ -10,7 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ashok.simplereader.MySubreddit;
+import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.PrefUtils;
 
