@@ -32,7 +32,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ashok.simplereader.ui.PostListActivity" />
         </activity>
-        <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".ui.LoginActivity"
+            android:label="Log into Reddit"/>
 
         <meta-data
             android:name="net.dean.jraw.REDDIT_USERNAME"
@@ -54,6 +55,8 @@
             android:name=".data.generated.PostProvider"
             android:authorities="com.ashok.simplereader.data.PostProvider"
             android:exported="false" />
+
+        <activity android:name=".ui.UserProfileActivity"></activity>
     </application>
 
 </manifest>

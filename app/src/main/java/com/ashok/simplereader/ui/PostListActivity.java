@@ -1,6 +1,7 @@
 package com.ashok.simplereader.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -9,6 +10,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,14 +21,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.ashok.simplereader.R;
-import com.ashok.simplereader.sync.PostSyncJob;
 
-import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.auth.NoSuchTokenException;
@@ -51,8 +50,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     RecyclerView mPostsRV;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.progressbar)
-    ProgressBar mProgressbar;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
@@ -91,6 +90,13 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                         PostListActivity.this).forceLoad();
             }
         });
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadPosts(getSortType());
+            }
+        });
     }
 
     @Override
@@ -101,24 +107,28 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         switch (state) {
             case READY:
                 if (posts.size() == 0) {
-                    loadPosts();
+                    loadPosts(getSortType());
                 }
                 break;
             case NONE:
                 Toast.makeText(PostListActivity.this, "Log in first", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Login");
+                builder.setMessage("Please login with your reddit account!");
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        startActivity(new Intent(PostListActivity.this, LoginActivity.class));
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 break;
             case NEED_REFRESH:
                 refreshAccessTokenAsync();
                 break;
         }
-    }
-
-    private void loadPosts() {
-        PostSyncJob.initialize(this);
-        RedditClient redditClient = AuthenticationManager.get().getRedditClient();
-        paginator = new SubredditPaginator(redditClient);
-        paginator.setSorting(getSortType());
-        getSupportLoaderManager().initLoader(POSTS_LOADER_ID, null, this).forceLoad();
     }
 
     private void refreshAccessTokenAsync() {
@@ -136,7 +146,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             @Override
             protected void onPostExecute(Void v) {
                 Log.d(TAG, "Reauthenticated");
-                loadPosts();
+                loadPosts(getSortType());
             }
         }.execute();
     }
@@ -184,27 +194,27 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 startActivity(new Intent(this, ManageSubredditsActivity.class));
                 break;
             case R.id.account:
-                startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, UserProfileActivity.class));
                 break;
             case R.id.latest:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_new));
-                sortPosts(Sorting.NEW);
+                loadPosts(Sorting.NEW);
                 break;
             case R.id.top:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_top));
-                sortPosts(Sorting.TOP);
+                loadPosts(Sorting.TOP);
                 break;
             case R.id.hot:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_hot));
-                sortPosts(Sorting.HOT);
+                loadPosts(Sorting.HOT);
                 break;
             case R.id.controversial:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_controversial));
-                sortPosts(Sorting.CONTROVERSIAL);
+                loadPosts(Sorting.CONTROVERSIAL);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -216,10 +226,9 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         preferences.edit().putString(getString(R.string.key_sort_type), sortType).apply();
     }
 
-    private void sortPosts(Sorting sorting) {
+    private void loadPosts(Sorting sorting) {
         this.posts.clear();
         adapter.setPosts(null);
-        mProgressbar.setVisibility(View.VISIBLE);
         paginator = new SubredditPaginator(AuthenticationManager.get().getRedditClient());
         paginator.setSorting(sorting);
         getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, this).forceLoad();
@@ -232,7 +241,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
-        mProgressbar.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setRefreshing(false);
         if (data != null) {
             List<Submission> posts = (List<Submission>) data;
             this.posts.addAll(posts);
