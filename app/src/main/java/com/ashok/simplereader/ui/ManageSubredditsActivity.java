@@ -11,8 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
-import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.RedditClient;

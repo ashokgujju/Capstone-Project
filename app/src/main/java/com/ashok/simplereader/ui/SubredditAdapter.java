@@ -10,8 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.auth.AuthenticationManager;
@@ -50,13 +50,13 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
     public void onBindViewHolder(final SubredditAdapterViewHolder holder, int position) {
         final MySubreddit mySubreddit = mySubreddits.get(position);
         final Subreddit subreddit = mySubreddit.getSubreddit();
-        holder.mSubreddit.setText(subreddit.getDisplayName());
+        holder.mTitle.setText(subreddit.getDisplayName());
         holder.mNumSubscribers.setText(subreddit.getSubscriberCount() + " subscribers");
         try {
             if (subreddit.isUserSubscriber()) {
-                holder.mSubreddit.setChecked(true);
+                holder.mSuscribe.setChecked(true);
             } else {
-                holder.mSubreddit.setChecked(false);
+                holder.mSuscribe.setChecked(false);
             }
         } catch (Exception e) {
         }
@@ -81,7 +81,7 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
             }
         });
 
-        holder.mSubreddit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.mSuscribe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 manageSubscription(subreddit, b);
@@ -111,12 +111,14 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
     }
 
     public class SubredditAdapterViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.subreddit)
-        CheckBox mSubreddit;
+        @BindView(R.id.subscribe)
+        CheckBox mSuscribe;
         @BindView(R.id.favorite)
         ImageView mFavorite;
         @BindView(R.id.no_subscribers)
         TextView mNumSubscribers;
+        @BindView(R.id.title)
+        TextView mTitle;
 
         public SubredditAdapterViewHolder(View itemView) {
             super(itemView);
