@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 
 import com.ashok.simplereader.R;
@@ -51,8 +52,8 @@ public class ManageSubredditsActivity extends AppCompatActivity
         mSubreddits.setHasFixedSize(true);
         mSubreddits.setAdapter(adapter);
 
+        mProgressbar.setVisibility(View.VISIBLE);
         getSupportLoaderManager().initLoader(1, null, this).forceLoad();
-
     }
 
     @Override
@@ -72,6 +73,7 @@ public class ManageSubredditsActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
+        mProgressbar.setVisibility(View.GONE);
         if (data != null) {
             List<MySubreddit> mysubreddits = (List<MySubreddit>) data;
             adapter.setData(mysubreddits);

@@ -12,10 +12,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ProgressBar;
 
-import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.RedditClient;
@@ -74,9 +75,12 @@ public class SearchForSubredditsActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                mProgressbar.setVisibility(View.VISIBLE);
+                mSubreddits.setVisibility(View.GONE);
                 Bundle bundle = new Bundle();
                 bundle.putString(KEY_QUERY, query);
-                getSupportLoaderManager().restartLoader(1, bundle, SearchForSubredditsActivity.this).forceLoad();
+                getSupportLoaderManager()
+                        .restartLoader(1, bundle, SearchForSubredditsActivity.this).forceLoad();
 
                 return true;
             }
@@ -96,6 +100,8 @@ public class SearchForSubredditsActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
+        mProgressbar.setVisibility(View.GONE);
+        mSubreddits.setVisibility(View.VISIBLE);
         if (data != null) {
             List<MySubreddit> mysubreddits = (List<MySubreddit>) data;
             adapter.setData(mysubreddits);

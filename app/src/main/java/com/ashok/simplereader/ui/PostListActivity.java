@@ -107,6 +107,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         switch (state) {
             case READY:
                 if (posts.size() == 0) {
+                    mSwipeRefreshLayout.setRefreshing(true);
                     loadPosts(getSortType());
                 }
                 break;
