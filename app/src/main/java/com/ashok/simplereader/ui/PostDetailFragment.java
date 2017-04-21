@@ -254,9 +254,13 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
 
         @Override
         public Object loadInBackground() {
-            RedditClient client = AuthenticationManager.get().getRedditClient();
-            Submission post = client.getSubmission(postId);
-            return post.getComments();
+            try {
+                RedditClient client = AuthenticationManager.get().getRedditClient();
+                Submission post = client.getSubmission(postId);
+                return post.getComments();
+            }catch (Exception e) {
+                return null;
+            }
         }
     }
 

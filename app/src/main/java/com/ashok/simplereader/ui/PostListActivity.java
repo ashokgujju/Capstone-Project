@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.PrefUtils;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.auth.AuthenticationState;
@@ -37,6 +38,7 @@ import net.dean.jraw.paginators.SubredditPaginator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -272,15 +274,33 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
     private static class PostsAsyncTaskLoader extends AsyncTaskLoader {
         private Paginator paginator;
+        private Context context;
 
         public PostsAsyncTaskLoader(Context context, Paginator paginator) {
             super(context);
             this.paginator = paginator;
+            this.context = context;
         }
 
         @Override
         public Object loadInBackground() {
-            return paginator.next();
+            try {
+                List<Submission> favSRPosts = new ArrayList<>();
+                List<Submission> notFavSRPosts = new ArrayList<>();
+                Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
+                List<Submission> posts = paginator.next();
+                for (Submission post : posts) {
+                    if (favSubredditIds.contains(post.getSubredditId().replace("t5_", ""))) {
+                        favSRPosts.add(post);
+                    } else {
+                        notFavSRPosts.add(post);
+                    }
+                }
+                favSRPosts.addAll(notFavSRPosts);
+                return favSRPosts;
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }
