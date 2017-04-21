@@ -2,6 +2,7 @@ package com.ashok.simplereader.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
     private Context context;
     private List<Submission> posts;
     private OnPostClickListener clickListener;
+    private Boolean isPostLiked = null;
 
     public PostsAdapter(Context context) {
         this.context = context;
@@ -54,13 +56,27 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
     }
 
     @Override
-    public void onBindViewHolder(PostsAdapterViewHolder holder, int position) {
+    public void onBindViewHolder(final PostsAdapterViewHolder holder, int position) {
         final Submission submission = posts.get(position);
         holder.mSubredditName.setText(submission.data("subreddit_name_prefixed"));
         holder.mTitle.setText(submission.getTitle());
         holder.mNumComments.setText(String.valueOf(submission.getCommentCount()));
         holder.mUpVotes.setText(submission.data(RedditApiKeys.UPS));
         holder.mDownVotes.setText(submission.data("downs"));
+
+        if (submission.data("likes") != null) {
+            if (Boolean.parseBoolean(submission.data("likes"))) {
+                isPostLiked = true;
+                setDrawableLeft(holder.mUpVotes, R.drawable.ic_arrow_upward_red);
+            } else {
+                isPostLiked = false;
+                setDrawableLeft(holder.mDownVotes, R.drawable.ic_arrow_downward_red);
+            }
+        } else {
+            isPostLiked = null;
+            setDrawableLeft(holder.mUpVotes, R.drawable.ic_arrow_upward);
+            setDrawableLeft(holder.mDownVotes, R.drawable.ic_arrow_downward);
+        }
 
         if (submission.getThumbnailType().equals(Submission.ThumbnailType.URL)) {
             holder.mThumbnail.setVisibility(View.VISIBLE);
@@ -72,13 +88,30 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
         holder.mUpVotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                vote(submission, VoteDirection.UPVOTE);
+                if (isPostLiked == null || !isPostLiked) {
+                    isPostLiked = true;
+                    votePost(submission, holder, VoteDirection.UPVOTE,
+                            R.drawable.ic_arrow_upward_red, R.drawable.ic_arrow_downward);
+                } else {
+                    isPostLiked = null;
+                    votePost(submission, holder, VoteDirection.NO_VOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward);
+                }
+
             }
         });
         holder.mDownVotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                vote(submission, VoteDirection.DOWNVOTE);
+                if (isPostLiked == null || isPostLiked) {
+                    isPostLiked = false;
+                    votePost(submission, holder, VoteDirection.DOWNVOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward_red);
+                } else {
+                    isPostLiked = null;
+                    votePost(submission, holder, VoteDirection.NO_VOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward);
+                }
             }
         });
 
@@ -98,6 +131,26 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
                 context.startActivity(shareIntent);
             }
         });
+    }
+
+    private void votePost(Submission submission, PostsAdapterViewHolder holder,
+                          VoteDirection voteDirection, int upward_arrow, int downward_arrow) {
+        vote(submission, voteDirection);
+        setDrawableLeft(holder.mUpVotes, upward_arrow);
+        setDrawableLeft(holder.mDownVotes, downward_arrow);
+    }
+
+    private void setDrawableLeft(TextView view, int drawableId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.setCompoundDrawablesWithIntrinsicBounds(
+                    context.getDrawable(drawableId),
+                    null, null, null);
+        } else {
+            view.setCompoundDrawablesWithIntrinsicBounds(
+                    context.getResources().getDrawable(drawableId),
+                    null, null, null
+            );
+        }
     }
 
     private void vote(final Submission submission, final VoteDirection voteDirection) {

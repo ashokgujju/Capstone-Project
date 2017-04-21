@@ -1,15 +1,16 @@
 package com.ashok.simplereader.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,10 +28,13 @@ import com.ashok.simplereader.utils.RedditApiKeys;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.picasso.Picasso;
 
+import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.VoteDirection;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
@@ -41,6 +45,7 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class PostDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks {
     public static final String ARG_ITEM_ID = "item_id";
@@ -62,13 +67,12 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
     TextView mDownVotes;
     @BindView(R.id.comments)
     TextView mNumComments;
-    @BindView(R.id.share)
-    TextView mShare;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
 
     private Submission post = null;
     private CommentsAdapter adapter;
+    private Boolean isPostLiked = null;
 
     public PostDetailFragment() {
     }
@@ -103,23 +107,51 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         mCommentsRecyclerView.setLayoutManager(manager);
         mCommentsRecyclerView.setAdapter(adapter);
 
-        if (post.data(RedditApiKeys.LIKES) != null) {
-            if (Boolean.parseBoolean(post.data(RedditApiKeys.LIKES))) {
-                mUpVotes.setTextColor(Color.RED);
+        if (post.data("likes") != null) {
+            if (Boolean.parseBoolean(post.data("likes"))) {
+                isPostLiked = true;
+                setDrawableLeft(mUpVotes, R.drawable.ic_arrow_upward_red);
             } else {
-                mUpVotes.setTextColor(Color.parseColor("#" + Integer
-                        .toHexString(ContextCompat.getColor(getActivity(), R.color.secondary_text))));
+                isPostLiked = false;
+                setDrawableLeft(mDownVotes, R.drawable.ic_arrow_downward_red);
             }
+        } else {
+            isPostLiked = null;
+            setDrawableLeft(mUpVotes, R.drawable.ic_arrow_upward);
+            setDrawableLeft(mDownVotes, R.drawable.ic_arrow_downward);
         }
+
         mUpVotes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (isPostLiked == null || !isPostLiked) {
+                    isPostLiked = true;
+                    votePost(post, VoteDirection.UPVOTE,
+                            R.drawable.ic_arrow_upward_red, R.drawable.ic_arrow_downward);
+                } else {
+                    isPostLiked = null;
+                    votePost(post, VoteDirection.NO_VOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward);
+                }
             }
         });
 
         mUpVotes.setText(post.data(RedditApiKeys.UPS));
         mDownVotes.setText(post.data(RedditApiKeys.DOWNS));
+        mDownVotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isPostLiked == null || isPostLiked) {
+                    isPostLiked = false;
+                    votePost(post, VoteDirection.DOWNVOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward_red);
+                } else {
+                    isPostLiked = null;
+                    votePost(post, VoteDirection.NO_VOTE,
+                            R.drawable.ic_arrow_upward, R.drawable.ic_arrow_downward);
+                }
+            }
+        });
         mNumComments.setText(String.valueOf(post.getCommentCount()));
 
         switch (post.getPostHint()) {
@@ -227,4 +259,48 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
             return post.getComments();
         }
     }
+
+    @OnClick(R.id.share)
+    public void sharePost() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, post.getPermalink());
+        getActivity().startActivity(shareIntent);
+    }
+
+    private void votePost(Submission submission,
+                          VoteDirection voteDirection, int upward_arrow, int downward_arrow) {
+        vote(submission, voteDirection);
+        setDrawableLeft(mUpVotes, upward_arrow);
+        setDrawableLeft(mDownVotes, downward_arrow);
+    }
+
+    private void vote(final Submission submission, final VoteDirection voteDirection) {
+        final AccountManager manager = new AccountManager(AuthenticationManager.get().getRedditClient());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    manager.vote(submission, voteDirection);
+                } catch (ApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void setDrawableLeft(TextView view, int drawableId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.setCompoundDrawablesWithIntrinsicBounds(
+                    getActivity().getDrawable(drawableId),
+                    null, null, null);
+        } else {
+            view.setCompoundDrawablesWithIntrinsicBounds(
+                    getActivity().getResources().getDrawable(drawableId),
+                    null, null, null
+            );
+        }
+    }
+
 }
