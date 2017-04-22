@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.DateTimeUtil;
 import com.google.common.collect.FluentIterable;
 
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.CommentNode;
 
 import butterknife.BindView;
@@ -36,8 +38,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     @Override
     public void onBindViewHolder(CommentsAdapterViewHolder holder, int position) {
         CommentNode commentNode = commentNodes.get(position);
-        holder.mBody.setText(commentNode.getComment().getBody());
-        holder.mAuthor.setText(commentNode.getComment().getAuthor());
+        Comment comment = commentNode.getComment();
+        holder.mBody.setText(comment.getBody());
+        holder.mAuthor.setText("u/" + comment.getAuthor() + "   "
+                + DateTimeUtil.convert(comment.getCreated().getTime()));
         holder.itemView.setPadding(makeIndent(commentNode.getDepth()), 0, 0, 0);
     }
 

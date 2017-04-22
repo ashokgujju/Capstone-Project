@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.DateTimeUtil;
 import com.ashok.simplereader.utils.RedditApiKeys;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.picasso.Picasso;
@@ -97,8 +98,9 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
         View rootView = inflater.inflate(R.layout.post_detail, container, false);
         ButterKnife.bind(this, rootView);
 
-        mSubreddit.setText(post.data(RedditApiKeys.SUBREDDIT_NAME_PREFIXED).concat("   u/")
-                .concat(post.getAuthor()));
+        mSubreddit.setText(post.data(RedditApiKeys.SUBREDDIT_NAME_PREFIXED)
+                .concat("   u/").concat(post.getAuthor())
+                .concat("   ").concat(DateTimeUtil.convert(post.getCreated().getTime())));
         mTitle.setText(post.getTitle());
 
         adapter = new CommentsAdapter(getActivity());
@@ -258,7 +260,7 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                 RedditClient client = AuthenticationManager.get().getRedditClient();
                 Submission post = client.getSubmission(postId);
                 return post.getComments();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return null;
             }
         }

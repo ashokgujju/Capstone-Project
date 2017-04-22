@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.utils.DateTimeUtil;
 import com.ashok.simplereader.utils.RedditApiKeys;
 import com.squareup.picasso.Picasso;
 
@@ -58,7 +59,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
     @Override
     public void onBindViewHolder(final PostsAdapterViewHolder holder, int position) {
         final Submission submission = posts.get(position);
-        holder.mSubredditName.setText(submission.data("subreddit_name_prefixed"));
+        holder.mSubredditName.setText(submission.data("subreddit_name_prefixed")
+                .concat("  ").concat(DateTimeUtil.convert(submission.getCreated().getTime())));
         holder.mTitle.setText(submission.getTitle());
         holder.mNumComments.setText(String.valueOf(submission.getCommentCount()));
         holder.mUpVotes.setText(submission.data(RedditApiKeys.UPS));
