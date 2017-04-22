@@ -9,4 +9,5 @@
     <dimen name="default_padding">5dp</dimen>
     <dimen name="progressbar_margin">20dp</dimen>
     <dimen name="default_margin">8dp</dimen>
+    <dimen name="activity_margin">16dp</dimen>
 </resources>

@@ -3,6 +3,7 @@ package com.ashok.simplereader.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,6 +28,8 @@ public class UserProfileActivity extends AppCompatActivity {
     TextView mRedditAge;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+    @BindView(R.id.cardview)
+    CardView mCardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class UserProfileActivity extends AppCompatActivity {
             protected void onPreExecute() {
                 super.onPreExecute();
                 mProgressbar.setVisibility(View.VISIBLE);
-                mUsername.setVisibility(View.GONE);
+                mCardView.setVisibility(View.GONE);
             }
 
             @Override
@@ -55,7 +58,7 @@ public class UserProfileActivity extends AppCompatActivity {
             protected void onPostExecute(Object data) {
                 mProgressbar.setVisibility(View.GONE);
                 if (data != null) {
-                    mUsername.setVisibility(View.VISIBLE);
+                    mCardView.setVisibility(View.VISIBLE);
                     LoggedInAccount account = (LoggedInAccount) data;
                     mUsername.append(account.getFullName());
                     mKarma.setText(account.getLinkKarma() + getString(R.string.karma));
