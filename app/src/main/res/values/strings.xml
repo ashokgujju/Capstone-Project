@@ -14,4 +14,9 @@
     <string name="key_sort_type">sortType</string>
     <string name="favroite_srs_key">favorite_srs_key</string>
     <string name="log_out">Log out</string>
+    <string name="profile">Profile</string>
+    <string name="username_prefix">u/</string>
+    <string name="karma">&#160;Karma</string>
+    <string name="gold_credits">&#160;Gold Credits</string>
+    <string name="reddit_age">&#160;Reddit age</string>
 </resources>

@@ -34,6 +34,7 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.CommentNode;
+import net.dean.jraw.models.KarmaBreakdown;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.VoteDirection;
 

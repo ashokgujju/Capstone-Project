@@ -48,6 +48,15 @@
             android:name=".ui.ManageSubredditsActivity"
             android:label="@string/manage_subreddits" />
 
+        <activity
+            android:name=".ui.UserProfileActivity"
+            android:label="@string/profile"
+            android:parentActivityName=".ui.PostListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ashok.simplereader.ui.PostListActivity" />
+        </activity>
+
         <service
             android:name=".sync.PostIntentService"
             android:exported="false" />
@@ -56,8 +65,6 @@
             android:name=".data.generated.PostProvider"
             android:authorities="com.ashok.simplereader.data.PostProvider"
             android:exported="false" />
-
-        <activity android:name=".ui.UserProfileActivity"></activity>
 
         <service
             android:name=".widget.PostWidgetRemoteViewService"

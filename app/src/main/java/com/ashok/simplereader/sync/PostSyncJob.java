@@ -1,5 +1,8 @@
 package com.ashok.simplereader.sync;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +25,10 @@ import java.util.ArrayList;
  */
 
 public class PostSyncJob {
+    private static final int PERIODIC_ID = 1;
+    private static final int PERIOD = 300000;
+    private static final int INITIAL_BACKOFF = 10000;
+
     public static void getPosts(Context context) {
         RedditClient redditClient = AuthenticationManager.get().getRedditClient();
         if (redditClient.isAuthenticated()) {
@@ -57,4 +64,18 @@ public class PostSyncJob {
             context.startService(nowIntent);
         }
     }
+
+    private static void schedulePeriodic(Context context) {
+        JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, PostJobService.class));
+
+        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(PERIOD)
+                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
+
+
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+        scheduler.schedule(builder.build());
+    }
+
 }

@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.PrefUtils;
@@ -114,9 +113,9 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 }
                 break;
             case NONE:
-                Toast.makeText(PostListActivity.this, "Log in first", Toast.LENGTH_SHORT).show();
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Login");
+                builder.setCancelable(false);
                 builder.setMessage("Please login with your reddit account!");
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
