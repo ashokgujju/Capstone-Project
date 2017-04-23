@@ -9,7 +9,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.http.NetworkException;
@@ -26,11 +29,16 @@ public class LoginActivity extends AppCompatActivity {
             "http://ashokgujju.github.io");
 
     private static final String TAG = LoginActivity.class.getSimpleName();
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        MyApplication application = (MyApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
 //        Credentials.in
         // Create our RedditClient
         final OAuthHelper helper = AuthenticationManager.get().getRedditClient().getOAuthHelper();
@@ -75,5 +83,12 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.finish();
             }
         }.execute(url);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        mTracker.setScreenName(getString(R.string.login_screen));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 }

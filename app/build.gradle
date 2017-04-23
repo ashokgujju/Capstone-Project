@@ -47,4 +47,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     annotationProcessor 'net.simonvt.schematic:schematic-compiler:0.7.0'
+    compile 'com.google.android.gms:play-services-analytics:10.0.1'
 }
+
+apply plugin: 'com.google.gms.google-services'

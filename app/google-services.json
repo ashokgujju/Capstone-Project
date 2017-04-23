@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "497476369791",
+    "project_id": "firebase-simplereader"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:497476369791:android:0f56c3e2aec226cb",
+        "android_client_info": {
+          "package_name": "com.ashok.simplereader"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5V2tVJ9vsZdSrYl-j5NWH4kePwRW1xeM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-97887796-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,8 +8,11 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.DateTimeUtil;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.models.LoggedInAccount;
@@ -31,11 +34,16 @@ public class UserProfileActivity extends AppCompatActivity {
     @BindView(R.id.cardview)
     CardView mCardView;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
         ButterKnife.bind(this);
+
+        MyApplication application = (MyApplication) getApplication();
+        mTracker = application.getDefaultTracker();
 
         new AsyncTask<Void, Void, Object>() {
             @Override
@@ -68,5 +76,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 }
             }
         }.execute();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName(getString(R.string.user_profile_screen));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
     }
 }

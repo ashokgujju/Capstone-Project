@@ -12,9 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.utils.PrefUtils;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
@@ -38,12 +41,16 @@ public class ManageSubredditsActivity extends AppCompatActivity
     ProgressBar mProgressbar;
 
     private SubredditAdapter adapter;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_for_subreddits);
         ButterKnife.bind(this);
+
+        MyApplication application = (MyApplication) getApplication();
+        mTracker = application.getDefaultTracker();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -118,5 +125,13 @@ public class ManageSubredditsActivity extends AppCompatActivity
             PrefUtils.updateFavorites(context, latestIds);
             return mySubreddits;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName(getString(R.string.manage_srs_scren));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
     }
 }

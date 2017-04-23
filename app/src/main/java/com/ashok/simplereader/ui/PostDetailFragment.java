@@ -23,10 +23,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.DateTimeUtil;
 import com.ashok.simplereader.utils.RedditApiKeys;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.ApiException;
@@ -34,7 +37,6 @@ import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.CommentNode;
-import net.dean.jraw.models.KarmaBreakdown;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.VoteDirection;
 
@@ -75,6 +77,8 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
     private Submission post = null;
     private CommentsAdapter adapter;
     private Boolean isPostLiked = null;
+    private Tracker mTracker;
+
 
     public PostDetailFragment() {
     }
@@ -98,6 +102,9 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.post_detail, container, false);
         ButterKnife.bind(this, rootView);
+
+        MyApplication application = (MyApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
 
         mSubreddit.setText(post.data(RedditApiKeys.SUBREDDIT_NAME_PREFIXED)
                 .concat("   u/").concat(post.getAuthor())
@@ -219,6 +226,13 @@ public class PostDetailFragment extends Fragment implements LoaderManager.Loader
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getActivity().getSupportLoaderManager().initLoader(COMMENTS_LOADER_ID, null, this).forceLoad();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mTracker.setScreenName(getString(R.string.post_detail_screen));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

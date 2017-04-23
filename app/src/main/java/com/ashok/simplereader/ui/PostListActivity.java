@@ -22,14 +22,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.PrefUtils;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.auth.AuthenticationManager;
 import net.dean.jraw.auth.AuthenticationState;
-import net.dean.jraw.auth.NoSuchTokenException;
 import net.dean.jraw.http.oauth.Credentials;
-import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.Paginator;
 import net.dean.jraw.paginators.Sorting;
@@ -60,12 +61,16 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     private PostsAdapter adapter;
     private SubredditPaginator paginator;
     private SharedPreferences preferences;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_list);
         ButterKnife.bind(this);
+
+        MyApplication application = (MyApplication) getApplication();
+        mTracker = application.getDefaultTracker();
 
         if (findViewById(R.id.post_detail_container) != null) {
             mTwoPane = true;
@@ -103,6 +108,10 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     @Override
     protected void onResume() {
         super.onResume();
+
+        mTracker.setScreenName(getString(R.string.posts_list_screen));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         AuthenticationState state = AuthenticationManager.get().checkAuthState();
         Log.d(TAG, "AuthenticationState for onResume(): " + state);
         switch (state) {
@@ -114,10 +123,10 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 break;
             case NONE:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Login");
+                builder.setTitle(R.string.login);
                 builder.setCancelable(false);
-                builder.setMessage("Please login with your reddit account!");
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                builder.setMessage(R.string.login_with_reddit);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
@@ -139,7 +148,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             protected Void doInBackground(Credentials... params) {
                 try {
                     AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
-                } catch (NoSuchTokenException | OAuthException e) {
+                } catch (Exception e) {
                     Log.e(TAG, "Could not refresh access token", e);
                 }
                 return null;
@@ -289,7 +298,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
                 List<Submission> posts = paginator.next();
                 for (Submission post : posts) {
-                    if (favSubredditIds.contains(post.getSubredditId().replace("t5_", ""))) {
+                    if (favSubredditIds.contains(post.getSubredditId()
+                            .replace(context.getString(R.string.subreddit_prefix), ""))) {
                         favSRPosts.add(post);
                     } else {
                         notFavSRPosts.add(post);

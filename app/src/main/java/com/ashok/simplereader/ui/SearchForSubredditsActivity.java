@@ -15,9 +15,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.model.MySubreddit;
 import com.ashok.simplereader.utils.PrefUtils;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
@@ -41,6 +44,7 @@ public class SearchForSubredditsActivity extends AppCompatActivity
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
     private SubredditAdapter adapter;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +52,20 @@ public class SearchForSubredditsActivity extends AppCompatActivity
         setContentView(R.layout.activity_search_for_subreddits);
         ButterKnife.bind(this);
 
+        MyApplication application = (MyApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
         adapter = new SubredditAdapter(this);
         mSubreddits.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mSubreddits.setHasFixedSize(true);
         mSubreddits.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName(getString(R.string.search_srs));
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

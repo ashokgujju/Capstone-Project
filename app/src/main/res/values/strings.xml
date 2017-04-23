@@ -19,4 +19,14 @@
     <string name="karma">&#160;Karma</string>
     <string name="gold_credits">&#160;Gold Credits</string>
     <string name="reddit_age">&#160;Reddit age</string>
+    <string name="login">Login</string>
+    <string name="login_with_reddit">Please login with your reddit account!</string>
+    <string name="ok">Ok</string>
+    <string name="subreddit_prefix">t5_</string>
+    <string name="posts_list_screen">Posts List Screen</string>
+    <string name="post_detail_screen">Post Detail Screen</string>
+    <string name="login_screen">Login Screen</string>
+    <string name="search_srs">Search for subreddits screen</string>
+    <string name="manage_srs_scren">Manage subreddits screen</string>
+    <string name="user_profile_screen">User profile screen</string>
 </resources>
