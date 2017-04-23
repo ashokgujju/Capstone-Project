@@ -132,6 +132,5 @@ public class ManageSubredditsActivity extends AppCompatActivity
         super.onResume();
         mTracker.setScreenName(getString(R.string.manage_srs_scren));
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
     }
 }

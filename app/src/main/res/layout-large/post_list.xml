@@ -20,15 +20,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/post_list"
         android:name="com.ashok.simplereader.PostListFragment"
-        android:layout_width="@dimen/item_width"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/activity_margin"
-        android:layout_marginStart="@dimen/activity_margin" />
-
-    <FrameLayout
-        android:id="@+id/post_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
+        android:layout_weight="1" />
 
 </LinearLayout>
