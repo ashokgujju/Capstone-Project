@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="app_bar_height">200dp</dimen>
     <dimen name="item_width">200dp</dimen>
-    <dimen name="text_margin">16dp</dimen>
     <dimen name="thumbnail_width">80dp</dimen>
     <dimen name="thumbnail_height">80dp</dimen>
     <dimen name="default_padding">5dp</dimen>
     <dimen name="progressbar_margin">20dp</dimen>
     <dimen name="default_margin">8dp</dimen>
     <dimen name="activity_margin">16dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="divider_end_margin">10dp</dimen>
+    <dimen name="post_actions_margin">10dp</dimen>
 </resources>

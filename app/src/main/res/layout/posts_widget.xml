@@ -11,7 +11,7 @@
         android:layout_height="?android:attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:gravity="center"
-        android:text="Posts"
+        android:text="@string/posts"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <FrameLayout
@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:background="@android:color/white"
             android:divider="@color/divider"
-            android:dividerHeight="1dp"
+            android:dividerHeight="@dimen/divider_height"
             tools:listitem="@layout/item_post_widget_list" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
-            android:text="No posts available"
+            android:text="@string/no_posts_available"
             android:textAppearance="?android:textAppearanceLarge" />
     </FrameLayout>
 </LinearLayout>

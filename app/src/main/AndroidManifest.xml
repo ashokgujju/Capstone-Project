@@ -71,6 +71,10 @@
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
+        <service
+            android:name=".sync.PostJobService"
+            android:exported="false" />
+
         <receiver android:name=".widget.PostWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

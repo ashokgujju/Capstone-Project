@@ -16,7 +16,8 @@
             android:id="@+id/thumbnail"
             android:layout_width="@dimen/thumbnail_width"
             android:layout_height="@dimen/thumbnail_height"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/post_thumbnail" />
 
         <LinearLayout
             android:layout_width="match_parent"

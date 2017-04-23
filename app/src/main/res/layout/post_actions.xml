@@ -15,7 +15,7 @@
         android:clickable="true"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_arrow_upward"
-        android:padding="10dp"
+        android:padding="@dimen/post_actions_margin"
         android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
@@ -27,7 +27,7 @@
         android:background="?attr/selectableItemBackground"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_arrow_downward"
-        android:padding="10dp"
+        android:padding="@dimen/post_actions_margin"
         android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
@@ -38,7 +38,7 @@
         android:layout_weight="1"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_comment"
-        android:padding="10dp"
+        android:padding="@dimen/post_actions_margin"
         android:textColor="@color/secondary_text"
         android:textSize="11sp" />
 
@@ -50,7 +50,7 @@
         android:background="?attr/selectableItemBackground"
         android:drawablePadding="@dimen/default_padding"
         android:drawableStart="@drawable/ic_share"
-        android:padding="10dp"
+        android:padding="@dimen/post_actions_margin"
         android:text="@string/share"
         android:textColor="@color/secondary_text"
         android:textSize="11sp" />

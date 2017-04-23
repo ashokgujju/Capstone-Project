@@ -9,7 +9,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.model.MySubreddit;
@@ -52,7 +51,7 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
         final MySubreddit mySubreddit = mySubreddits.get(position);
         final Subreddit subreddit = mySubreddit.getSubreddit();
         holder.mTitle.setText(subreddit.getDisplayName());
-        holder.mNumSubscribers.setText(subreddit.getSubscriberCount() + " subscribers");
+        holder.mNumSubscribers.setText(subreddit.getSubscriberCount() + context.getString(R.string.subscribers));
         try {
             if (subreddit.isUserSubscriber()) {
                 holder.mSuscribe.setChecked(true);

@@ -69,8 +69,9 @@ public class UserProfileActivity extends AppCompatActivity {
                     mCardView.setVisibility(View.VISIBLE);
                     LoggedInAccount account = (LoggedInAccount) data;
                     mUsername.append(account.getFullName());
-                    mKarma.setText(account.getLinkKarma() + getString(R.string.karma));
-                    mGoldCredits.setText(account.getCreddits() + getString(R.string.gold_credits));
+                    mKarma.setText(String.valueOf(account.getLinkKarma()).concat(getString(R.string.karma)));
+                    mGoldCredits.setText(String.valueOf(account.getCreddits())
+                            .concat(getString(R.string.gold_credits)));
                     mRedditAge.setText(DateTimeUtil.convert(account.getCreated().getTime())
                             .concat(getString(R.string.reddit_age)));
                 }
