@@ -39,11 +39,8 @@ public class LoginActivity extends AppCompatActivity {
         MyApplication application = (MyApplication) getApplication();
         mTracker = application.getDefaultTracker();
 
-//        Credentials.in
-        // Create our RedditClient
         final OAuthHelper helper = AuthenticationManager.get().getRedditClient().getOAuthHelper();
 
-        // OAuth2 scopes to request. See https://www.reddit.com/dev/api/oauth for a full list
         String[] scopes = {"identity", "read", "subscribe", "mysubreddits", "vote"};
 
         final URL authorizationUrl = helper.getAuthorizationUrl(CREDENTIALS, true, true, scopes);
@@ -54,10 +51,10 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 if (url.contains("code=")) {
-                    // We've detected the redirect URL
+                    // detected the redirect URL
                     onUserChallenge(url, CREDENTIALS);
                 } else if (url.contains("error=")) {
-                    Toast.makeText(LoginActivity.this, "You must press 'allow' to log in with this account", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, R.string.must_login, Toast.LENGTH_SHORT).show();
                     webView.loadUrl(authorizationUrl.toExternalForm());
                 }
             }

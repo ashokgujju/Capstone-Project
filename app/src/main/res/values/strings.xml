@@ -40,4 +40,11 @@
     <string name="posts">Posts</string>
     <string name="no_posts_available">No posts available</string>
     <string name="subscribers">&#160;subscribers</string>
+    <string name="must_login">You must press \'allow\' to log in with this account</string>
+    <string name="favorite_msg">&#160;posts will be shown at the top of feed</string>
+    <string name="not_fav_msg">&#160;posts will not be shown at the top of feed</string>
+    <string name="subscribed_msg">Subscribed</string>
+    <string name="unsubscribed">Unsubscribed</string>
+    <string name="suscribing_msg">Subscribing..</string>
+    <string name="unsubscribing_msg">Unsubscribing..</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.ashok.simplereader.ui;
 
 import android.content.Context;
+import android.media.JetPlayer;
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.model.MySubreddit;
@@ -74,9 +77,15 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
                 if (mySubreddit.isFavorite()) {
                     holder.mFavorite.setImageResource(R.drawable.ic_favorite);
                     PrefUtils.addFavoriteSubreddit(context, subreddit.getId());
+                    Toast.makeText(context,
+                            subreddit.getDisplayName() +context.getString(R.string.favorite_msg),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     holder.mFavorite.setImageResource(R.drawable.ic_not_favorite);
                     PrefUtils.removeFavoriteSubreddit(context, subreddit.getId());
+                    Toast.makeText(context,
+                            subreddit.getDisplayName() + context.getString(R.string.not_fav_msg),
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -89,18 +98,46 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.Subr
         });
     }
 
-    private void manageSubscription(final Subreddit subreddit, final boolean b) {
-        final AccountManager manager = new AccountManager(AuthenticationManager.get().getRedditClient());
-        new Thread(new Runnable() {
+    private void manageSubscription(final Subreddit subreddit, final boolean subscribe) {
+        new AsyncTask<Void, Void, Object>() {
             @Override
-            public void run() {
-                if (b) {
-                    manager.subscribe(subreddit);
+            protected void onPreExecute() {
+                if (subscribe) {
+                    Toast.makeText(context, R.string.suscribing_msg, Toast.LENGTH_LONG).show();
                 } else {
-                    manager.unsubscribe(subreddit);
+                    Toast.makeText(context, R.string.unsubscribing_msg, Toast.LENGTH_LONG).show();
                 }
             }
-        }).start();
+
+            @Override
+            protected Object doInBackground(Void... voids) {
+                try {
+                    AccountManager manager = new AccountManager(AuthenticationManager.get()
+                            .getRedditClient());
+                    if (subscribe) {
+                        manager.subscribe(subreddit);
+                    } else {
+                        manager.unsubscribe(subreddit);
+                    }
+                } catch (Exception e) {
+                    return e;
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object object) {
+                if (object == null) {
+                    if (subscribe) {
+                        Toast.makeText(context, R.string.subscribed_msg, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, R.string.unsubscribed, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(context, ((Exception)object).getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }.execute();
     }
 
     @Override

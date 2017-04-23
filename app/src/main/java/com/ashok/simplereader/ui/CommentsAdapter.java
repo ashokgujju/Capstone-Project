@@ -40,7 +40,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         CommentNode commentNode = commentNodes.get(position);
         Comment comment = commentNode.getComment();
         holder.mBody.setText(comment.getBody());
-        holder.mAuthor.setText("u/" + comment.getAuthor() + "   "
+        holder.mAuthor.setText(context.getString(R.string.username_prefix) + comment.getAuthor() + "   "
                 + DateTimeUtil.convert(comment.getCreated().getTime()));
         holder.itemView.setPadding(makeIndent(commentNode.getDepth()), 0, 0, 0);
     }
