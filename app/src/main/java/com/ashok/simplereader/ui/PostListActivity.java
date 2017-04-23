@@ -77,9 +77,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         MyApplication application = (MyApplication) getApplication();
         mTracker = application.getDefaultTracker();
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
-
-        //load ad
+        MobileAds.initialize(getApplicationContext(), getString(R.string.test_id));
         mAdView.loadAd(new AdRequest.Builder().build());
 
         if (findViewById(R.id.post_detail_container) != null) {
