@@ -48,6 +48,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     annotationProcessor 'net.simonvt.schematic:schematic-compiler:0.7.0'
     compile 'com.google.android.gms:play-services-analytics:10.0.1'
+    compile 'com.google.android.gms:play-services-ads:10.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

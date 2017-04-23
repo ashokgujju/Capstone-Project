@@ -25,6 +25,9 @@ import android.view.MenuItem;
 import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.PrefUtils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -54,6 +57,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     Toolbar mToolbar;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.adView)
+    AdView mAdView;
 
     private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
@@ -71,6 +76,11 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
         MyApplication application = (MyApplication) getApplication();
         mTracker = application.getDefaultTracker();
+
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-3940256099942544~3347511713");
+
+        //load ad
+        mAdView.loadAd(new AdRequest.Builder().build());
 
         if (findViewById(R.id.post_detail_container) != null) {
             mTwoPane = true;

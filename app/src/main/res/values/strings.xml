@@ -2,18 +2,21 @@
     <string name="app_name">SimpleReader</string>
     <string name="title_post_detail">Post Detail</string>
     <string name="share">Share</string>
+
     <string name="search_title">Search</string>
     <string name="search_hint">Search for subreddits</string>
     <string name="sort">Sort</string>
     <string name="manage_subreddits">Manage Subreddits</string>
     <string name="account">Account</string>
+
     <string name="sort_hot">Hot</string>
     <string name="sort_new">New</string>
     <string name="sort_top">Top</string>
     <string name="sort_controversial">Controversial</string>
+
     <string name="key_sort_type">sortType</string>
     <string name="favroite_srs_key">favorite_srs_key</string>
-    <string name="log_out">Log out</string>
+
     <string name="profile">Profile</string>
     <string name="username_prefix">u/</string>
     <string name="karma">&#160;Karma</string>
@@ -23,10 +26,13 @@
     <string name="login_with_reddit">Please login with your reddit account!</string>
     <string name="ok">Ok</string>
     <string name="subreddit_prefix">t5_</string>
+
     <string name="posts_list_screen">Posts List Screen</string>
     <string name="post_detail_screen">Post Detail Screen</string>
     <string name="login_screen">Login Screen</string>
     <string name="search_srs">Search for subreddits screen</string>
     <string name="manage_srs_scren">Manage subreddits screen</string>
     <string name="user_profile_screen">User profile screen</string>
+
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>
