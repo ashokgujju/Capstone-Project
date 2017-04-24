@@ -12,6 +12,7 @@ import com.ashok.simplereader.R;
 import com.ashok.simplereader.data.PostColumns;
 import com.ashok.simplereader.data.PostProvider;
 import com.ashok.simplereader.ui.PostDetailActivity;
+import com.ashok.simplereader.utils.RedditApiConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.dean.jraw.models.Submission;
@@ -81,7 +82,7 @@ public class PostWidgetRemoteViewService extends RemoteViewsService {
                             .readTree(data.getString(data.getColumnIndex(PostColumns.DATA))));
 
                     views.setTextViewText(R.id.title, post.getTitle());
-                    views.setTextViewText(R.id.subreddit, post.data("subreddit_name_prefixed"));
+                    views.setTextViewText(R.id.subreddit, post.data(RedditApiConstants.SUBREDDIT_NAME_PREFIXED));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

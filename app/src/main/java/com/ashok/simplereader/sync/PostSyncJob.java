@@ -11,9 +11,11 @@ import android.net.NetworkInfo;
 
 import com.ashok.simplereader.data.PostColumns;
 import com.ashok.simplereader.data.PostProvider;
+import com.ashok.simplereader.ui.LoginActivity;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
@@ -28,8 +30,17 @@ public class PostSyncJob {
     private static final int PERIODIC_ID = 1;
     private static final int PERIOD = 300000;
     private static final int INITIAL_BACKOFF = 10000;
+    public static final String ACTION_DATA_UPDATED = "com.ashok.simplereader.ACTION_DATA_UPDATED";
 
     public static void getPosts(Context context) {
+        AuthenticationState state = AuthenticationManager.get().checkAuthState();
+        if (state == AuthenticationState.NEED_REFRESH) {
+            try {
+                AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         RedditClient redditClient = AuthenticationManager.get().getRedditClient();
         if (redditClient.isAuthenticated()) {
             SubredditPaginator paginator = new SubredditPaginator(redditClient);
@@ -48,21 +59,14 @@ public class PostSyncJob {
                         new ContentValues[postCVs.size()]
                 ));
             }
+
+            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+            context.sendBroadcast(dataUpdatedIntent);
         }
     }
 
     public static synchronized void initialize(final Context context) {
-        syncImmediately(context);
-    }
-
-    public static synchronized void syncImmediately(Context context) {
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-            Intent nowIntent = new Intent(context, PostIntentService.class);
-            context.startService(nowIntent);
-        }
+        schedulePeriodic(context);
     }
 
     private static void schedulePeriodic(Context context) {
@@ -72,10 +76,7 @@ public class PostSyncJob {
                 .setPeriodic(PERIOD)
                 .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
 
-
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
         scheduler.schedule(builder.build());
     }
-
 }

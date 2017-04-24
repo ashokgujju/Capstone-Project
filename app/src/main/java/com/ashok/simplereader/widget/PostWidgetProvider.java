@@ -10,6 +10,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.sync.PostSyncJob;
 import com.ashok.simplereader.ui.PostDetailActivity;
 import com.ashok.simplereader.ui.PostListActivity;
 
@@ -43,7 +44,8 @@ public class PostWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
+        if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                || intent.getAction().equals(PostSyncJob.ACTION_DATA_UPDATED)) {
             AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = widgetManager.getAppWidgetIds(new ComponentName(context, getClass()));
             widgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.list);

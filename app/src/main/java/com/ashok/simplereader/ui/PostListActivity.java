@@ -1,5 +1,6 @@
 package com.ashok.simplereader.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,6 +29,9 @@ import android.widget.TextView;
 
 import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
+import com.ashok.simplereader.data.PostColumns;
+import com.ashok.simplereader.data.PostProvider;
+import com.ashok.simplereader.sync.PostSyncJob;
 import com.ashok.simplereader.utils.PrefUtils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -49,6 +53,8 @@ import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.ashok.simplereader.sync.PostSyncJob.ACTION_DATA_UPDATED;
 
 public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener,
         LoaderManager.LoaderCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -112,6 +118,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 loadPosts();
             }
         });
+
+        PostSyncJob.initialize(this);
     }
 
     @Override
@@ -333,6 +341,27 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 List<Submission> notFavSRPosts = new ArrayList<>();
                 Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
                 List<Submission> posts = paginator.next();
+
+                //cache posts for widget
+                if (paginator.getPageIndex() == 1) {
+                    ArrayList<ContentValues> postCVs = new ArrayList<>();
+                    for (Submission post : posts) {
+                        ContentValues postCV = new ContentValues();
+                        postCV.put(PostColumns.DATA, post.getDataNode().toString());
+                        postCVs.add(postCV);
+                    }
+
+                    if (postCVs.size() > 0) {
+                        context.getContentResolver().delete(PostProvider.Posts.CONTENT_URI, null, null);
+                        context.getContentResolver().bulkInsert(PostProvider.Posts.CONTENT_URI, postCVs.toArray(
+                                new ContentValues[postCVs.size()]
+                        ));
+                    }
+                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+                    context.sendBroadcast(dataUpdatedIntent);
+                }
+
+                //show posts from favorite subreddit at the top
                 for (Submission post : posts) {
                     if (favSubredditIds.contains(post.getSubredditId()
                             .replace(context.getString(R.string.subreddit_prefix), ""))) {
