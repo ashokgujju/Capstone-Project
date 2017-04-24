@@ -18,6 +18,13 @@
             android:orientation="vertical"
             app:layout_scrollFlags="scroll">
 
+            <android.support.v7.widget.Toolbar
+                android:background="@color/colorPrimary"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize">
+
+            </android.support.v7.widget.Toolbar>
+
             <TextView
                 android:id="@+id/subreddit"
                 android:layout_width="wrap_content"
@@ -44,11 +51,11 @@
                 android:visibility="gone" />
 
             <ImageView
-                android:contentDescription="@string/post_photo"
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
+                android:contentDescription="@string/post_photo"
                 android:scaleType="fitCenter"
                 android:visibility="gone" />
 

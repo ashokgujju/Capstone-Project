@@ -47,7 +47,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PostListActivity extends AppCompatActivity implements PostsAdapter.OnPostClickListener,
-        LoaderManager.LoaderCallbacks {
+        LoaderManager.LoaderCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int POSTS_LOADER_ID = 11;
 
@@ -60,7 +60,6 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     @BindView(R.id.adView)
     AdView mAdView;
 
-    private boolean mTwoPane;
     private String TAG = PostListActivity.class.getSimpleName();
     private List<Submission> posts = new ArrayList<>();
     private PostsAdapter adapter;
@@ -79,10 +78,6 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
 
         MobileAds.initialize(getApplicationContext(), getString(R.string.test_id));
         mAdView.loadAd(new AdRequest.Builder().build());
-
-        if (findViewById(R.id.post_detail_container) != null) {
-            mTwoPane = true;
-        }
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -108,7 +103,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadPosts(getSortType());
+                loadPosts();
             }
         });
     }
@@ -116,6 +111,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     @Override
     protected void onResume() {
         super.onResume();
+        preferences.registerOnSharedPreferenceChangeListener(this);
 
         mTracker.setScreenName(getString(R.string.posts_list_screen));
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -125,8 +121,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         switch (state) {
             case READY:
                 if (posts.size() == 0) {
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    loadPosts(getSortType());
+                    loadPosts();
                 }
                 break;
             case NONE:
@@ -165,7 +160,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             @Override
             protected void onPostExecute(Void v) {
                 Log.d(TAG, "Reauthenticated");
-                loadPosts(getSortType());
+                loadPosts();
             }
         }.execute();
     }
@@ -218,22 +213,18 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
             case R.id.latest:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_new));
-                loadPosts(Sorting.NEW);
                 break;
             case R.id.top:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_top));
-                loadPosts(Sorting.TOP);
                 break;
             case R.id.hot:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_hot));
-                loadPosts(Sorting.HOT);
                 break;
             case R.id.controversial:
                 item.setChecked(true);
                 saveSortPreference(getString(R.string.sort_controversial));
-                loadPosts(Sorting.CONTROVERSIAL);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -245,11 +236,12 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         preferences.edit().putString(getString(R.string.key_sort_type), sortType).apply();
     }
 
-    private void loadPosts(Sorting sorting) {
+    private void loadPosts() {
+        mSwipeRefreshLayout.setRefreshing(true);
         this.posts.clear();
         adapter.setPosts(null);
         paginator = new SubredditPaginator(AuthenticationManager.get().getRedditClient());
-        paginator.setSorting(sorting);
+        paginator.setSorting(getSortType());
         getSupportLoaderManager().restartLoader(POSTS_LOADER_ID, null, this).forceLoad();
     }
 
@@ -288,6 +280,13 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         return null;
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.key_sort_type))) {
+            loadPosts();
+        }
+    }
+
     private static class PostsAsyncTaskLoader extends AsyncTaskLoader {
         private Paginator paginator;
         private Context context;
@@ -319,5 +318,11 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 return null;
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 }
