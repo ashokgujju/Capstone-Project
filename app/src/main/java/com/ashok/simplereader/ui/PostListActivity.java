@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -21,6 +23,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
@@ -59,6 +63,8 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.adView)
     AdView mAdView;
+    @BindView(R.id.empty_msg)
+    TextView mEmptyMsg;
 
     private String TAG = PostListActivity.class.getSimpleName();
     private List<Submission> posts = new ArrayList<>();
@@ -116,6 +122,10 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         mTracker.setScreenName(getString(R.string.posts_list_screen));
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
+        checkAuthentication();
+    }
+
+    private void checkAuthentication() {
         AuthenticationState state = AuthenticationManager.get().checkAuthState();
         Log.d(TAG, "AuthenticationState for onResume(): " + state);
         switch (state) {
@@ -168,7 +178,7 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     @Override
     public void onPostClicked(Submission post) {
         Intent i = new Intent(this, PostDetailActivity.class);
-        i.putExtra(PostDetailActivity.POST_JSON, post.getDataNode().toString());
+        i.putExtra(PostDetailActivity.ARG_ITEM_ID, post.getDataNode().toString());
         startActivity(i);
     }
 
@@ -253,10 +263,24 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
     @Override
     public void onLoadFinished(Loader loader, Object data) {
         mSwipeRefreshLayout.setRefreshing(false);
+        mEmptyMsg.setVisibility(View.GONE);
+        mPostsRV.setVisibility(View.VISIBLE);
+
         if (data != null) {
             List<Submission> posts = (List<Submission>) data;
             this.posts.addAll(posts);
             adapter.setPosts(this.posts);
+        }
+
+
+        if (adapter.getItemCount() == 0) {
+            mEmptyMsg.setVisibility(View.VISIBLE);
+            mPostsRV.setVisibility(View.GONE);
+            if (!networkUp()) {
+                mEmptyMsg.setText(R.string.connect_to_internet);
+            } else {
+                mEmptyMsg.setText(R.string.subscribe_to_srs);
+            }
         }
     }
 
@@ -300,6 +324,11 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
         @Override
         public Object loadInBackground() {
             try {
+                AuthenticationState state = AuthenticationManager.get().checkAuthState();
+                if (state == AuthenticationState.NEED_REFRESH) {
+                    AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
+                }
+
                 List<Submission> favSRPosts = new ArrayList<>();
                 List<Submission> notFavSRPosts = new ArrayList<>();
                 Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
@@ -318,6 +347,13 @@ public class PostListActivity extends AppCompatActivity implements PostsAdapter.
                 return null;
             }
         }
+    }
+
+    private boolean networkUp() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     @Override

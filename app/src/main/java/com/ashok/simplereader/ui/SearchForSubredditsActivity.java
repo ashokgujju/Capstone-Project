@@ -1,6 +1,8 @@
 package com.ashok.simplereader.ui;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -14,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ashok.simplereader.MyApplication;
 import com.ashok.simplereader.R;
@@ -24,6 +27,7 @@ import com.google.android.gms.analytics.Tracker;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 import net.dean.jraw.paginators.SubredditSearchPaginator;
@@ -43,6 +47,9 @@ public class SearchForSubredditsActivity extends AppCompatActivity
     RecyclerView mSubreddits;
     @BindView(R.id.progressbar)
     ProgressBar mProgressbar;
+    @BindView(R.id.empty_msg)
+    TextView mEmptyMsg;
+
     private SubredditAdapter adapter;
     private Tracker mTracker;
 
@@ -91,6 +98,7 @@ public class SearchForSubredditsActivity extends AppCompatActivity
             public boolean onQueryTextSubmit(String query) {
                 mProgressbar.setVisibility(View.VISIBLE);
                 mSubreddits.setVisibility(View.GONE);
+                mEmptyMsg.setVisibility(View.GONE);
                 Bundle bundle = new Bundle();
                 bundle.putString(KEY_QUERY, query);
                 getSupportLoaderManager()
@@ -115,10 +123,21 @@ public class SearchForSubredditsActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader loader, Object data) {
         mProgressbar.setVisibility(View.GONE);
+        mEmptyMsg.setVisibility(View.GONE);
         mSubreddits.setVisibility(View.VISIBLE);
         if (data != null) {
             List<MySubreddit> mysubreddits = (List<MySubreddit>) data;
             adapter.setData(mysubreddits);
+        }
+
+        if (adapter.getItemCount() == 0) {
+            mEmptyMsg.setVisibility(View.VISIBLE);
+            mSubreddits.setVisibility(View.GONE);
+            if (!networkUp()) {
+                mEmptyMsg.setText(R.string.connect_to_internet);
+            } else {
+                mEmptyMsg.setText(R.string.no_results_found);
+            }
         }
     }
 
@@ -139,24 +158,40 @@ public class SearchForSubredditsActivity extends AppCompatActivity
 
         @Override
         public Object loadInBackground() {
-            RedditClient client = AuthenticationManager.get().getRedditClient();
-            SubredditSearchPaginator paginator = new SubredditSearchPaginator(client, query);
-            Listing<Subreddit> listings = paginator.next();
-
-            Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
-            List<MySubreddit> mySubreddits = new ArrayList<>();
-
-            for (Subreddit subreddit : listings) {
-                MySubreddit mySubreddit = new MySubreddit();
-                mySubreddit.setSubreddit(subreddit);
-                if (favSubredditIds.contains(subreddit.getId())) {
-                    mySubreddit.setFavorite(true);
-                } else {
-                    mySubreddit.setFavorite(false);
+            try {
+                AuthenticationState state = AuthenticationManager.get().checkAuthState();
+                if (state == AuthenticationState.NEED_REFRESH) {
+                    AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
                 }
-                mySubreddits.add(mySubreddit);
+
+                RedditClient client = AuthenticationManager.get().getRedditClient();
+                SubredditSearchPaginator paginator = new SubredditSearchPaginator(client, query);
+                Listing<Subreddit> listings = paginator.next();
+
+                Set<String> favSubredditIds = PrefUtils.getFavoriteSubreddits(context);
+                List<MySubreddit> mySubreddits = new ArrayList<>();
+
+                for (Subreddit subreddit : listings) {
+                    MySubreddit mySubreddit = new MySubreddit();
+                    mySubreddit.setSubreddit(subreddit);
+                    if (favSubredditIds.contains(subreddit.getId())) {
+                        mySubreddit.setFavorite(true);
+                    } else {
+                        mySubreddit.setFavorite(false);
+                    }
+                    mySubreddits.add(mySubreddit);
+                }
+                return mySubreddits;
+            } catch (Exception e) {
             }
-            return mySubreddits;
+            return null;
         }
+    }
+
+    private boolean networkUp() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 }

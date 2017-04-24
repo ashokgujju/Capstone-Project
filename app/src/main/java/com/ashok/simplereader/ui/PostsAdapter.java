@@ -12,11 +12,11 @@ import android.widget.TextView;
 
 import com.ashok.simplereader.R;
 import com.ashok.simplereader.utils.DateTimeUtil;
-import com.ashok.simplereader.utils.RedditApiKeys;
+import com.ashok.simplereader.utils.RedditApiConstants;
 import com.squareup.picasso.Picasso;
 
-import net.dean.jraw.ApiException;
 import net.dean.jraw.auth.AuthenticationManager;
+import net.dean.jraw.auth.AuthenticationState;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.VoteDirection;
@@ -59,15 +59,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
     @Override
     public void onBindViewHolder(final PostsAdapterViewHolder holder, int position) {
         final Submission submission = posts.get(position);
-        holder.mSubredditName.setText(submission.data("subreddit_name_prefixed")
+        holder.mSubredditName.setText(submission.data(RedditApiConstants.SUBREDDIT_NAME_PREFIXED)
                 .concat("  ").concat(DateTimeUtil.convert(submission.getCreated().getTime())));
         holder.mTitle.setText(submission.getTitle());
         holder.mNumComments.setText(String.valueOf(submission.getCommentCount()));
-        holder.mUpVotes.setText(submission.data(RedditApiKeys.UPS));
-        holder.mDownVotes.setText(submission.data("downs"));
+        holder.mUpVotes.setText(submission.data(RedditApiConstants.UPS));
+        holder.mDownVotes.setText(submission.data(RedditApiConstants.DOWNS));
 
-        if (submission.data("likes") != null) {
-            if (Boolean.parseBoolean(submission.data("likes"))) {
+        if (submission.data(RedditApiConstants.LIKES) != null) {
+            if (Boolean.parseBoolean(submission.data(RedditApiConstants.LIKES))) {
                 isPostLiked = true;
                 setDrawableLeft(holder.mUpVotes, R.drawable.ic_arrow_upward_red);
             } else {
@@ -129,7 +129,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
             public void onClick(View view) {
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, submission.getPermalink());
+                shareIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.reddit_website)
+                        .concat(submission.getPermalink()));
                 context.startActivity(shareIntent);
             }
         });
@@ -162,8 +163,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsAdapter
             @Override
             public void run() {
                 try {
+                    AuthenticationState state = AuthenticationManager.get().checkAuthState();
+                    if (state == AuthenticationState.NEED_REFRESH) {
+                        AuthenticationManager.get().refreshAccessToken(LoginActivity.CREDENTIALS);
+                    }
                     manager.vote(submission, voteDirection);
-                } catch (ApiException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

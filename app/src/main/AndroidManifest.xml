@@ -26,8 +26,7 @@
         <activity
             android:name=".ui.PostDetailActivity"
             android:label="@string/title_post_detail"
-            android:parentActivityName=".ui.PostListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".ui.PostListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ashok.simplereader.ui.PostListActivity" />

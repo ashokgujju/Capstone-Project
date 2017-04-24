@@ -87,7 +87,7 @@ public class PostWidgetRemoteViewService extends RemoteViewsService {
                 }
 
                 Intent fillIntent = new Intent();
-                fillIntent.putExtra(PostDetailActivity.POST_JSON,
+                fillIntent.putExtra(PostDetailActivity.ARG_ITEM_ID,
                         data.getString(data.getColumnIndex(PostColumns.DATA)));
                 views.setOnClickFillInIntent(R.id.list_item, fillIntent);
 
