@@ -1,7 +1,7 @@
 # Capstone Project - Reddit App
 
 
-Reddit(http://reddit.com) is an entertainment and social networking site where community members can create posts and submit links in themed areas called “subreddits.” This App allows user to indicate a set of subreddits they have surbscribed as favorites and the posts from favorited subreddits will be shown at the top of their feed. It is useful to keep up with favorite subreddits posts.
+Reddit(http://reddit.com) is an entertainment and social networking site where community members can create posts and submit links in themed areas called “subreddits.” This App allows user to indicate a set of subreddits they have subscribed as favorites and the posts from favorited subreddits will be shown at the top of their feed. It is useful to keep up with favorite subreddits posts.
 
 
 
